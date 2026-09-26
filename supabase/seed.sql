@@ -1,0 +1,1 @@
+-- Local-only seed data for `supabase db reset`. Never put real personal data here.
