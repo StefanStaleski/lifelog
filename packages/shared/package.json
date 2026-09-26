@@ -4,17 +4,22 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./db": "./src/db/index.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate"
   },
   "devDependencies": {
     "@types/node": "^22",
+    "drizzle-kit": "^0.31.11",
     "vitest": "^5.0.2"
   },
   "dependencies": {
+    "drizzle-orm": "^0.45.3",
+    "postgres": "^3.4.9",
     "zod": "^4.6.5"
   }
 }

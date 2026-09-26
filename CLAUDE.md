@@ -32,10 +32,11 @@ pnpm test
 pnpm build
 pnpm --filter web dev                 # local dashboard + API on :3000
 
-# Database
-supabase start                        # local stack (needed by ingest integration tests)
-pnpm --filter shared db:generate      # drizzle-kit: generate SQL migration into supabase/migrations
-supabase db reset                     # re-apply all migrations locally
+# Database (Supabase CLI is a dev dependency: `pnpm exec supabase …`)
+pnpm db:start                         # local Postgres only, on port 55322 (ports are 553xx to avoid other local stacks)
+pnpm db:generate                      # drizzle-kit: schema.ts → new SQL migration in supabase/migrations
+pnpm db:reset                         # re-apply all migrations + seed.sql locally
+pnpm db:test                          # pgTAP tests in supabase/tests (RLS / no public access)
 
 # Android (from apps/android; JDK 17; CI runs `test assembleDebug`)
 ./gradlew test assembleDebug          # JVM unit tests + debug APK
@@ -53,6 +54,7 @@ Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.and
 - **Local-first:** every event is written to Room before any network call.
 - **No raw content stored:** no message bodies, no notification text, no call/SMS content, no raw GPS trace. Store counts, derived visits, salted hashes of phone numbers, and a hash of bank message text (for de-dup), never the text itself.
 - **Wire contract** lives in `packages/shared/src/events.ts` (zod) with examples in `packages/shared/fixtures/events/{valid,invalid}`. Any change to an event type updates the schema, the fixtures and the Kotlin models in the same PR; both test suites run against the fixtures.
+- **Schema changes** go through `packages/shared/src/db/schema.ts` + `pnpm db:generate`; never edit a generated migration. Hand-written SQL (functions, grants, pg_cron) goes in `drizzle-kit generate --custom` migrations. CI fails if migrations drift from the schema.
 - `events` is append-only; typed tables and `daily_summary` are derived and can be rebuilt from it.
 - RLS enabled on every table with no public policies. Only server code uses the service role key, which lives in Vercel env vars / git-ignored `.env.local`, never in the app or browser.
 - API payloads and MCP outputs put units in field names (`screen_time_min`, `distance_m`, `spend_mkd`).
