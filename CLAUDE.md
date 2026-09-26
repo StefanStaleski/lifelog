@@ -37,12 +37,14 @@ supabase start                        # local stack (needed by ingest integratio
 pnpm --filter shared db:generate      # drizzle-kit: generate SQL migration into supabase/migrations
 supabase db reset                     # re-apply all migrations locally
 
-# Android (from apps/android)
-./gradlew assembleDebug
-./gradlew test                        # JVM unit tests (parsers, DAOs with Robolectric)
+# Android (from apps/android; JDK 17; CI runs `test assembleDebug`)
+./gradlew test assembleDebug          # JVM unit tests + debug APK
 ./gradlew installDebug                # to the S24 over USB
+adb reverse tcp:3000 tcp:3000         # phone reaches local `pnpm --filter web dev` at localhost:3000
 adb logcat -s Lifelog                 # app log tag
 ```
+
+Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.android`), versions in `apps/android/gradle/libs.versions.toml`, compileSdk 37 / targetSdk 36 / minSdk 30, package `io.github.stefanstaleski.lifelog`. Per-machine values go in git-ignored `apps/android/local.properties`: `lifelog.apiBaseUrl` (default `http://localhost:3000/`) and `lifelog.deviceToken`, exposed as `BuildConfig.API_BASE_URL` / `DEVICE_TOKEN`. Cleartext HTTP is allowed only to localhost.
 
 ## Conventions
 
