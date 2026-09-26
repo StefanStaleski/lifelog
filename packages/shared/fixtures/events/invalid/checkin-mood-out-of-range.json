@@ -1,0 +1,14 @@
+{
+  "id": "26b22817-bd9c-43a6-8636-d2c66567849f",
+  "type": "checkin",
+  "occurred_at": "2026-09-27T19:31:05Z",
+  "device_id": "s24",
+  "payload": {
+    "date": "2026-09-27",
+    "mood": 6,
+    "energy": 3,
+    "focus": 3,
+    "tags": [],
+    "note": null
+  }
+}

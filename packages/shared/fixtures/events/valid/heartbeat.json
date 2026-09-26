@@ -1,0 +1,13 @@
+{
+  "id": "fca8373f-c402-4aad-940c-c5b1b258e9b6",
+  "type": "heartbeat",
+  "occurred_at": "2026-09-27T08:30:02Z",
+  "device_id": "s24",
+  "payload": {
+    "app_version": "0.1.0",
+    "pending_count": 12,
+    "collection_paused": false,
+    "usage_access_granted": true,
+    "battery_optimization_ignored": false
+  }
+}

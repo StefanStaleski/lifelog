@@ -1,0 +1,7 @@
+{
+  "id": "8c4feba2-6b24-46b6-96a9-534aa38e80a4",
+  "type": "notification",
+  "occurred_at": "2026-09-27T06:42:13Z",
+  "device_id": "s24",
+  "payload": { "package": "com.example.chat" }
+}

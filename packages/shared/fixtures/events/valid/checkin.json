@@ -1,0 +1,14 @@
+{
+  "id": "c21fd044-85e8-4039-9de4-5f1a990ebac1",
+  "type": "checkin",
+  "occurred_at": "2026-09-27T19:31:05Z",
+  "device_id": "s24",
+  "payload": {
+    "date": "2026-09-27",
+    "mood": 4,
+    "energy": 3,
+    "focus": 5,
+    "tags": ["gym", "deep work"],
+    "note": "Good day, long walk after lunch."
+  }
+}
