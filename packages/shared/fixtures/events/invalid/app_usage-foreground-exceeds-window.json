@@ -1,0 +1,14 @@
+{
+  "id": "b15e6c4b-c646-440b-8ebe-823ea78c2cec",
+  "type": "app_usage",
+  "occurred_at": "2026-09-27T08:00:00Z",
+  "ended_at": "2026-09-27T08:30:00Z",
+  "device_id": "s24",
+  "payload": {
+    "package": "com.example.chat",
+    "app_label": "Chat",
+    "category": "social",
+    "foreground_ms": 1800001,
+    "launches": 1
+  }
+}

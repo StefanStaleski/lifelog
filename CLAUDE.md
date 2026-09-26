@@ -52,6 +52,7 @@ Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.and
 - **Event ids are UUIDs generated on the device** at capture time. Ingest uses `ON CONFLICT (id) DO NOTHING`, so re-sending a batch is always safe. Never generate event ids server-side.
 - **Local-first:** every event is written to Room before any network call.
 - **No raw content stored:** no message bodies, no notification text, no call/SMS content, no raw GPS trace. Store counts, derived visits, salted hashes of phone numbers, and a hash of bank message text (for de-dup), never the text itself.
+- **Wire contract** lives in `packages/shared/src/events.ts` (zod) with examples in `packages/shared/fixtures/events/{valid,invalid}`. Any change to an event type updates the schema, the fixtures and the Kotlin models in the same PR; both test suites run against the fixtures.
 - `events` is append-only; typed tables and `daily_summary` are derived and can be rebuilt from it.
 - RLS enabled on every table with no public policies. Only server code uses the service role key, which lives in Vercel env vars / git-ignored `.env.local`, never in the app or browser.
 - API payloads and MCP outputs put units in field names (`screen_time_min`, `distance_m`, `spend_mkd`).

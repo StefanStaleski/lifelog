@@ -1,0 +1,14 @@
+{
+  "id": "217c9a8e-c706-4219-9ba3-97e8f841b0a2",
+  "type": "app_usage",
+  "occurred_at": "2026-09-27T21:30:00.000Z",
+  "ended_at": "2026-09-27T22:00:00.000Z",
+  "device_id": "s24",
+  "payload": {
+    "package": "com.example.reader",
+    "app_label": "Reader",
+    "category": null,
+    "foreground_ms": 1800000,
+    "launches": 1
+  }
+}

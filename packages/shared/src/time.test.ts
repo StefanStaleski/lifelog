@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toLocalDate } from "./index";
+import { toLocalDate } from "./time";
 
 describe("toLocalDate", () => {
   it("rolls over to the next local day before UTC midnight (CEST, UTC+2)", () => {

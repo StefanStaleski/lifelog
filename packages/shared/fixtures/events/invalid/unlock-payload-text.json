@@ -1,0 +1,7 @@
+{
+  "id": "997f77db-5c04-4ccd-95ff-f25b81aa966c",
+  "type": "unlock",
+  "occurred_at": "2026-09-27T06:42:13Z",
+  "device_id": "s24",
+  "payload": { "text": "raw content must never be accepted" }
+}
