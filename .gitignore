@@ -1,0 +1,33 @@
+# Dependencies and build output
+node_modules/
+dist/
+.next/
+out/
+*.tsbuildinfo
+coverage/
+
+# Secrets: never commit real tokens, keys or bank samples
+.env
+.env.*
+!.env.example
+
+# Vercel / Supabase local state
+.vercel/
+supabase/.branches/
+supabase/.temp/
+
+# Android
+apps/android/local.properties
+apps/android/.gradle/
+apps/android/.kotlin/
+apps/android/**/build/
+apps/android/.idea/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

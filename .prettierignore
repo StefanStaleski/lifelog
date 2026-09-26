@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+apps/android/
+supabase/migrations/
+docs/
+.next/
+dist/
