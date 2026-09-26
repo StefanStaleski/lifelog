@@ -1,0 +1,11 @@
+{
+  "accepted": 498,
+  "duplicates": 1,
+  "rejected": [
+    {
+      "index": 17,
+      "id": "997f77db-5c04-4ccd-95ff-f25b81aa966c",
+      "error": "payload: Unrecognized key: \"text\""
+    }
+  ]
+}
