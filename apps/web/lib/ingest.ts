@@ -12,7 +12,8 @@ export type IngestResult = {
 };
 
 /**
- * Validates each event on its own, stores the valid ones idempotently and records source health.
+ * Validates each event on its own, stores the valid ones idempotently, derives the typed tables
+ * from the newly stored ones and records source health, all in one transaction.
  * Invalid events are reported back but never block the rest of the batch: the phone drops them
  * instead of retrying forever.
  */
@@ -60,6 +61,11 @@ export async function ingestBatch(
             .returning({ id: events.id });
 
     await recordSourceHealth(tx, valid, rejected, now);
+    if (inserted.length > 0)
+      await processEvents(
+        tx,
+        inserted.map((r) => r.id),
+      );
     return new Set(inserted.map((r) => r.id));
   });
 
@@ -72,6 +78,15 @@ export async function ingestBatch(
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
 
+/** Derives typed tables and daily_summary from newly stored events (SQL: public.process_events). */
+async function processEvents(tx: Tx, ids: string[]) {
+  const idList = sql.join(
+    ids.map((id) => sql`${id}`),
+    sql`, `,
+  );
+  await tx.execute(sql`select public.process_events(array[${idList}]::uuid[])`);
+}
+
 async function recordSourceHealth(tx: Tx, valid: Event[], rejected: RejectedEvent[], now: Date) {
   const latestByType = new Map<string, Date>();
   for (const e of valid) {
@@ -80,35 +95,33 @@ async function recordSourceHealth(tx: Tx, valid: Event[], rejected: RejectedEven
     if (!prev || at > prev) latestByType.set(e.type, at);
   }
 
-  const rows: (typeof sourceHealth.$inferInsert)[] = [...latestByType].map(
-    ([source, lastEventAt]) => ({
-      source,
-      lastEventAt,
-      lastError: null,
-      updatedAt: now,
-    }),
-  );
+  if (latestByType.size > 0) {
+    await tx
+      .insert(sourceHealth)
+      .values(
+        [...latestByType].map(([source, lastEventAt]) => ({ source, lastEventAt, updatedAt: now })),
+      )
+      .onConflictDoUpdate({
+        target: sourceHealth.source,
+        set: {
+          // Late or re-sent data must not move the watermark backwards. last_error is left alone:
+          // for event sources it is owned by process_events (e.g. heartbeat warnings).
+          lastEventAt: sql`greatest(${sourceHealth.lastEventAt}, excluded.last_event_at)`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      });
+  }
+
   if (rejected.length > 0) {
-    const first = rejected[0]!;
-    rows.push({
+    const row = {
       source: "ingest",
       lastEventAt: now,
-      lastError: `${rejected.length} event(s) rejected; first: ${first.error}`,
+      lastError: `${rejected.length} event(s) rejected; first: ${rejected[0]!.error}`,
       updatedAt: now,
-    });
+    };
+    await tx
+      .insert(sourceHealth)
+      .values(row)
+      .onConflictDoUpdate({ target: sourceHealth.source, set: row });
   }
-  if (rows.length === 0) return;
-
-  await tx
-    .insert(sourceHealth)
-    .values(rows)
-    .onConflictDoUpdate({
-      target: sourceHealth.source,
-      set: {
-        // Late or re-sent data must not move the watermark backwards.
-        lastEventAt: sql`greatest(${sourceHealth.lastEventAt}, excluded.last_event_at)`,
-        lastError: sql`excluded.last_error`,
-        updatedAt: sql`excluded.updated_at`,
-      },
-    });
 }

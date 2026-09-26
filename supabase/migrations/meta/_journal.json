@@ -15,6 +15,13 @@
       "when": 1790465832671,
       "tag": "20260926233712_lock_down_api_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790466637352,
+      "tag": "20260926235037_process_events",
+      "breakpoints": true
     }
   ]
 }

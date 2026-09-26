@@ -41,8 +41,8 @@ describe("POST /api/v1/events/batch", () => {
       endedAt: new Date("2026-09-27T08:30:00Z"),
       payload: fx.app_usage!.payload,
       deviceId: "s24",
-      processedAt: null,
     });
+    expect(row?.processedAt).toBeInstanceOf(Date);
   });
 
   it("accepts gzip bodies", async () => {
