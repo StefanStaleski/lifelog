@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-09-27T09:00:00.000Z",
+  "sources": [
+    {
+      "source": "heartbeat",
+      "last_event_at": "2026-09-27T08:30:02.000Z",
+      "last_error": "battery optimisation is on",
+      "stale_after_min": 120,
+      "stale": false,
+      "details": {
+        "app_version": "0.1.0",
+        "pending_count": 12,
+        "collection_paused": false,
+        "usage_access_granted": true,
+        "battery_optimization_ignored": false
+      }
+    },
+    {
+      "source": "ingest",
+      "last_event_at": "2026-09-26T20:00:00.000Z",
+      "last_error": "1 event(s) rejected; first: occurred_at: Invalid ISO datetime",
+      "stale_after_min": null,
+      "stale": false,
+      "details": null
+    }
+  ]
+}

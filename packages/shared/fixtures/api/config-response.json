@@ -1,0 +1,16 @@
+{
+  "time_zone": "Europe/Skopje",
+  "collection_interval_min": 30,
+  "upload_batch_size": 500,
+  "checkin_time": "21:30",
+  "places": [
+    {
+      "id": "6c65bad9-31ff-4f68-bebc-8a51b4c30ca1",
+      "name": "Home",
+      "kind": "home",
+      "lat": 41.9981,
+      "lng": 21.4254,
+      "radius_m": 120
+    }
+  ]
+}

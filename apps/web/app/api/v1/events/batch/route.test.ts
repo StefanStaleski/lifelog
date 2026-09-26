@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { IngestResponseSchema } from "@lifelog/shared";
 import { events, sourceHealth } from "@lifelog/shared/db";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
@@ -66,6 +67,7 @@ describe("POST /api/v1/events/batch", () => {
     const bad = { ...fx.unlock, id: randomUUID(), occurred_at: "2026-09-27T08:00:00+02:00" };
     const res = await post({ events: [fx.checkin, bad, "garbage"] });
     expect(res.status).toBe(200);
+    expect(IngestResponseSchema.safeParse(res.body).success).toBe(true);
     expect(res.body.accepted).toBe(1);
     expect(res.body.rejected).toEqual([
       { index: 1, id: bad.id, error: expect.stringMatching(/^occurred_at:/) },
