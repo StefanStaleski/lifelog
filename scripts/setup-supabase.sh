@@ -54,6 +54,6 @@ fi
 echo "Setting DATABASE_URL on Vercel and redeploying…"
 vercel env rm DATABASE_URL production --yes --scope "$SCOPE" >/dev/null 2>&1 || true
 printf '%s' "$database_url" | vercel env add DATABASE_URL production --scope "$SCOPE" >/dev/null
-vercel deploy --prod --yes --scope "$SCOPE" >/dev/null
+vercel deploy --prod --yes --archive=tgz --scope "$SCOPE" >/dev/null
 
 scripts/smoke.sh

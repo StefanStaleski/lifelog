@@ -1,0 +1,11 @@
+# Only apps/web and what it imports (packages/shared) are needed to build the site.
+apps/android
+supabase
+docs
+scripts
+**/node_modules
+**/.next
+**/build
+**/.gradle
+**/*.apk
+.env*
