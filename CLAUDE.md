@@ -54,6 +54,7 @@ Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.and
 - Env vars on Vercel (production): `DEVICE_TOKEN`, `DATABASE_URL` (Supabase transaction pooler, port 6543). Local copies plus `SUPABASE_DB_PASSWORD` live in git-ignored `apps/web/.env.local`.
 - Supabase org "Lifelog". `scripts/setup-supabase.sh` creates/links the cloud project, runs `db push`, sets `DATABASE_URL` on Vercel, redeploys and smoke-tests. Schema changes later: `pnpm exec supabase db push`.
 - `scripts/smoke.sh [base-url]` checks a deployment end to end (safe to re-run).
+- `pnpm gate [base-url] [days]` prints the phase-gate report (`GET /api/v1/gate`): no heartbeat silence over 4 h, screen time or unlocks on every finished day; exit 0 when passed.
 
 ## Conventions
 

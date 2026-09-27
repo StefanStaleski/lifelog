@@ -71,3 +71,27 @@ export const HealthResponseSchema = z.strictObject({
   ),
 });
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;
+
+/** `GET /api/v1/gate?days=7`: is collection complete enough to pass the phase gate? */
+export const GateResponseSchema = z.strictObject({
+  from: utcInstant,
+  to: utcInstant,
+  days: z.int().positive(),
+  /** First heartbeat ever received; null before the phone has reported. */
+  tracking_since: utcInstant.nullable(),
+  max_gap_min: z.int().positive(),
+  gaps: z.array(z.strictObject({ from: utcInstant, to: utcInstant, minutes: z.int() })),
+  per_day: z.array(
+    z.strictObject({
+      date: z.iso.date(),
+      heartbeats: z.int().nonnegative(),
+      screen_time_min: z.int().nullable(),
+      unlocks: z.int().nullable(),
+      checkin: z.boolean(),
+    }),
+  ),
+  passed: z.boolean(),
+  /** One friendly sentence, e.g. "Day 3 of 7, no gaps so far." */
+  summary: z.string(),
+});
+export type GateResponse = z.infer<typeof GateResponseSchema>;
