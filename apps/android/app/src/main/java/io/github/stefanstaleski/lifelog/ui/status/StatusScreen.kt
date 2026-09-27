@@ -219,6 +219,7 @@ private fun SourcesCard(sources: List<SourceRow>, now: Instant) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+                Spacer(Modifier.width(12.dp))
                 Column(horizontalAlignment = Alignment.End) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Dot(if (s.fresh) status.goodDot else status.attentionDot)
