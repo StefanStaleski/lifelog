@@ -59,7 +59,10 @@ class AndroidDeviceStatusSource @Inject constructor(
             batteryOptimizationIgnored = power.isIgnoringBatteryOptimizations(context.packageName),
             charging = battery.isCharging,
             batteryPct = battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).takeIf { it in 0..100 },
-            autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted,
+            // Battery-unrestricted apps are exempt from "pause/remove permissions if unused" too: the
+            // system greys that switch out without recording an explicit exemption (seen on the S24).
+            autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted ||
+                power.isIgnoringBatteryOptimizations(context.packageName),
             healthConnect = runCatching { steps.access() }.getOrDefault(HealthAccess.NOT_INSTALLED),
             activityRecognitionGranted = activity.granted(),
             locationGranted = location.access().precise,

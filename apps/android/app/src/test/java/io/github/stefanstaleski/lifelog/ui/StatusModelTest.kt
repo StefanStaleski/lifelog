@@ -105,12 +105,18 @@ class StatusModelTest {
     }
 
     @Test fun samsungSleepingAppsIsAChecklistItemUntilConfirmed() {
-        val samsung = allOk.copy(isSamsung = true)
-        val card = buildStatusUi(now, false, samsung, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = false)
-            .problems.single()
-        assertThat(card.fix).isEqualTo(Fix.SAMSUNG_BATTERY)
-        assertThat(card.secondary).isEqualTo("I've done it" to Fix.SAMSUNG_BATTERY_DONE)
-        assertThat(buildStatusUi(now, false, samsung, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = true).problems).isEmpty()
+        val samsung = allOk.copy(isSamsung = true, batteryOptimizationIgnored = false)
+        fun fixes(device: DeviceStatus, checked: Boolean) =
+            buildStatusUi(now, false, device, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = checked)
+                .problems.map { it.fix }
+
+        val samsungCard = buildStatusUi(now, false, samsung, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = false)
+            .problems.single { it.fix == Fix.SAMSUNG_BATTERY }
+        assertThat(samsungCard.secondary).isEqualTo("I've done it" to Fix.SAMSUNG_BATTERY_DONE)
+        assertThat(fixes(samsung, checked = false)).containsExactly(Fix.BATTERY, Fix.SAMSUNG_BATTERY).inOrder()
+        assertThat(fixes(samsung, checked = true)).containsExactly(Fix.BATTERY)
+        // Unrestricted on battery: Samsung won't even list the app, so no card
+        assertThat(fixes(allOk.copy(isSamsung = true), checked = false)).isEmpty()
         assertThat(buildStatusUi(now, false, allOk, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = false).problems).isEmpty()
     }
 
