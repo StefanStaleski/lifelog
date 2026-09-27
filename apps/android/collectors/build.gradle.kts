@@ -20,6 +20,7 @@ android {
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.isReturnDefaultValues = true // android.util.Log in plain JVM tests
     }
 }
 

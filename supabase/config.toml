@@ -427,7 +427,8 @@ additional_redirect_urls = ["https://lifelog-opal-two.vercel.app/auth/callback",
 enable_signup = false
 
 [remotes.production.auth.email]
-enable_signup = false
+# true = the email login method is ON (this key doesn't mean "new sign-ups"; that's auth.enable_signup above)
+enable_signup = true
 otp_length = 6
 otp_expiry = 900
 # unchanged cloud values (pinned so a push only touches the sign-in settings above)
