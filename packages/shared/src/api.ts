@@ -56,6 +56,7 @@ export const STALE_AFTER_MIN: Record<string, number> = {
   steps: 24 * 60,
   activity: 24 * 60,
   checkin: 48 * 60,
+  notifications: 24 * 60,
   // geofence / stay: no allowance, a day at home without leaving is normal
 };
 

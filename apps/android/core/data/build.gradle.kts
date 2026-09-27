@@ -24,6 +24,13 @@ android {
     }
 }
 
+// Exported schemas as unit-test assets, for migration tests (AGP 9 Variant API).
+androidComponents {
+    onVariants { variant ->
+        variant.hostTests.values.forEach { it.sources.assets?.addStaticSourceDirectory("schemas") }
+    }
+}
+
 room {
     // Exported schemas are committed so future migrations can be tested against them.
     schemaDirectory("$projectDir/schemas")
@@ -41,6 +48,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
+    testImplementation(libs.room.testing)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.kotlinx.coroutines.test)
 }

@@ -31,6 +31,7 @@ describe("EventSchema fixtures", () => {
     "stay-too-short.json": "ended_at",
     "stay-precise-coordinates.json": "payload.lat",
     "activity-unknown-kind.json": "payload.activity",
+    "notifications-with-text.json": "payload",
   };
 
   it.each(load("invalid"))("rejects invalid/%s", (name, json) => {

@@ -1,0 +1,8 @@
+{
+  "id": "f87092a0-f18b-4707-aec2-0e694c891870",
+  "type": "notifications",
+  "occurred_at": "2026-09-27T09:00:00Z",
+  "ended_at": "2026-09-27T10:00:00Z",
+  "device_id": "s24",
+  "payload": { "package": "com.facebook.orca", "app_label": "Messenger", "count": 14 }
+}

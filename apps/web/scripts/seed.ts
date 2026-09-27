@@ -56,7 +56,7 @@ const at = (dayStart: Date, hour: number) =>
 async function main() {
   const db = getDb();
   await db.execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly`,
   );
   const [home, work, gym] = await db
     .insert(places)
@@ -140,6 +140,24 @@ async function main() {
           new Date(start.getTime() + 3_600_000),
         ),
       );
+    }
+
+    // Notifications per app per finished hour (counts only)
+    for (let h = Math.ceil(wake); h < Math.floor(bed); h++) {
+      if (h + 1 > until) break;
+      for (const [pkg, label, , weight] of APPS.slice(0, 5)) {
+        const n = Math.round(between(0, 4) * weight * (workday ? 1.2 : 0.8));
+        if (n === 0) continue;
+        const start = at(day, h);
+        events.push(
+          ev(
+            "notifications",
+            start,
+            { package: pkg, app_label: label, count: n },
+            new Date(start.getTime() + 3_600_000),
+          ),
+        );
+      }
     }
 
     // Places: home → office (workdays) → gym (Mon/Wed/Fri) → home

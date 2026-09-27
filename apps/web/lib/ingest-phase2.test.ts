@@ -146,6 +146,26 @@ describe("phase 2 processing", () => {
     expect(await summary("2026-09-28")).toMatchObject({ homeMin: 480 });
   });
 
+  it("sums notification counts per local day, keeping the larger count per hour and app", async () => {
+    const n = (hour: string, pkg: string, c: number) =>
+      ev(
+        "notifications",
+        hour,
+        { package: pkg, app_label: pkg, count: c },
+        new Date(Date.parse(hour) + 3_600_000).toISOString(),
+      );
+    await ingestBatch(db(), [
+      n("2026-09-27T08:00:00Z", "chat", 5),
+      n("2026-09-27T08:00:00Z", "mail", 2),
+    ]);
+    await ingestBatch(db(), [
+      n("2026-09-27T08:00:00Z", "chat", 7),
+      n("2026-09-27T22:00:00Z", "chat", 1),
+    ]);
+    expect(await summary("2026-09-27")).toMatchObject({ notifications: 9 });
+    expect(await summary("2026-09-28")).toMatchObject({ notifications: 1 });
+  });
+
   it("reports missing phase-2 permissions from the heartbeat, and old heartbeats still work", async () => {
     await ingestBatch(db(), [fx.heartbeat]); // Phase 1 app: no new fields
     const phase2 = {

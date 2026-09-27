@@ -9,6 +9,7 @@ import io.github.stefanstaleski.lifelog.core.data.model.CheckinPayload
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
 import io.github.stefanstaleski.lifelog.core.data.model.GeofencePayload
 import io.github.stefanstaleski.lifelog.core.data.model.HeartbeatPayload
+import io.github.stefanstaleski.lifelog.core.data.model.NotificationsPayload
 import io.github.stefanstaleski.lifelog.core.data.model.ScreenPayload
 import io.github.stefanstaleski.lifelog.core.data.model.StayPayload
 import io.github.stefanstaleski.lifelog.core.data.model.StepsPayload
@@ -37,6 +38,7 @@ class ContractTest {
         EventType.SCREEN -> serializer<ScreenPayload>()
         EventType.GEOFENCE -> serializer<GeofencePayload>()
         EventType.STAY -> serializer<StayPayload>()
+        EventType.NOTIFICATIONS -> serializer<NotificationsPayload>()
         null -> error("unknown event type $type")
     }
 

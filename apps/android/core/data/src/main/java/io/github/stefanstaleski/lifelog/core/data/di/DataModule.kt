@@ -13,6 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.stefanstaleski.lifelog.core.data.LifelogJson
 import io.github.stefanstaleski.lifelog.core.data.db.LifelogDatabase
+import io.github.stefanstaleski.lifelog.core.data.db.NotificationCountDao
 import io.github.stefanstaleski.lifelog.core.data.db.PendingEventDao
 import java.time.Clock
 import javax.inject.Singleton
@@ -28,6 +29,9 @@ object DataModule {
 
     @Provides
     fun pendingEventDao(db: LifelogDatabase): PendingEventDao = db.pendingEventDao()
+
+    @Provides
+    fun notificationCountDao(db: LifelogDatabase): NotificationCountDao = db.notificationCountDao()
 
     /** Wire JSON, see [LifelogJson]. */
     @Provides

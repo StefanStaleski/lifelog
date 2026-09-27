@@ -8,6 +8,7 @@ import dagger.multibindings.IntoSet
 import dagger.multibindings.Multibinds
 import io.github.stefanstaleski.lifelog.collectors.PolledCollector
 import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
+import io.github.stefanstaleski.lifelog.collectors.notifications.NotificationCollector
 import io.github.stefanstaleski.lifelog.collectors.health.StepsCollector
 import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
 import io.github.stefanstaleski.lifelog.collectors.places.FusedLocationSource
@@ -35,6 +36,10 @@ abstract class CollectorsModule {
     @Binds
     @IntoSet
     abstract fun steps(impl: StepsCollector): PolledCollector
+
+    @Binds
+    @IntoSet
+    abstract fun notifications(impl: NotificationCollector): PolledCollector
 
     @Binds
     @IntoSet

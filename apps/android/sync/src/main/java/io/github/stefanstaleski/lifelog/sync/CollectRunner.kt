@@ -75,6 +75,7 @@ class CollectRunner @Inject constructor(
                 activityRecognitionGranted = status.activityRecognitionGranted,
                 locationGranted = status.locationGranted,
                 backgroundLocationGranted = status.backgroundLocationGranted,
+                notificationListenerGranted = status.notificationListenerGranted,
             ),
         )
         settings.recordCollect(now, errors)

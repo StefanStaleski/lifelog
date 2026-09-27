@@ -42,6 +42,7 @@ data class OnboardingActions(
     val onHealthConnect: () -> Unit = {},
     val onActivity: () -> Unit = {},
     val onLocation: () -> Unit = {},
+    val onNotificationAccess: () -> Unit = {},
     val onAppInfo: () -> Unit = {},
     val onFinish: () -> Unit = {},
 )
@@ -93,6 +94,11 @@ fun OnboardingScreen(checks: DeviceChecks, actions: OnboardingActions) {
             },
             checks.device.backgroundLocationGranted != false, required = false,
             if (checks.device.locationGranted == true) "Allow all the time" else "Allow", actions.onLocation,
+        ),
+        Step(
+            "🔔", "Count notifications",
+            "Counts how many notifications each app sends per hour. Lifelog never reads what they say.",
+            checks.device.notificationListenerGranted != false, required = false, "Open settings", actions.onNotificationAccess,
         ),
     ).filterNotNull()
     val ready = steps.filter { it.required }.all { it.done }

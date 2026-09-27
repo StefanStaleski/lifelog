@@ -121,6 +121,7 @@ export const dailySummary = pgTable("daily_summary", {
   workMin: integer("work_min"),
   gymMin: integer("gym_min"),
   otherPlacesMin: integer("other_places_min"),
+  notifications: integer("notifications"),
   updatedAt: tstz("updated_at").notNull().defaultNow(),
 }).enableRLS();
 
@@ -205,3 +206,15 @@ export const sleepEstimates = pgTable("sleep_estimates", {
   corrected: boolean("corrected").notNull().default(false),
   computedAt: tstz("computed_at").notNull().defaultNow(),
 }).enableRLS();
+
+/** Notifications posted per app per hour (counts only, never content). */
+export const notificationsHourly = pgTable(
+  "notifications_hourly",
+  {
+    hour: tstz("hour").notNull(),
+    package: text("package").notNull(),
+    appLabel: text("app_label").notNull(),
+    count: integer("count").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.hour, t.package] })],
+).enableRLS();

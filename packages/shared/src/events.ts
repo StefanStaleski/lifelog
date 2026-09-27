@@ -180,6 +180,30 @@ export const StayEventSchema = z
     }
   });
 
+/** How many notifications one app posted in one finished UTC hour. Never any content. */
+export const NotificationsEventSchema = z
+  .strictObject({
+    ...envelope,
+    type: z.literal("notifications"),
+    ended_at: utcInstant,
+    payload: z.strictObject({
+      package: z.string().min(1).max(255),
+      app_label: z.string().min(1).max(255),
+      count: z.int().positive().max(10_000),
+    }),
+  })
+  .check((ctx) => {
+    const start = Date.parse(ctx.value.occurred_at);
+    if (start % 3_600_000 !== 0 || Date.parse(ctx.value.ended_at) - start !== 3_600_000) {
+      ctx.issues.push({
+        code: "custom",
+        message: "notifications must cover exactly one whole UTC hour",
+        path: ["ended_at"],
+        input: ctx.value.ended_at,
+      });
+    }
+  });
+
 export const EventSchema = z.discriminatedUnion("type", [
   AppUsageEventSchema,
   UnlockEventSchema,
@@ -190,6 +214,7 @@ export const EventSchema = z.discriminatedUnion("type", [
   ScreenEventSchema,
   GeofenceEventSchema,
   StayEventSchema,
+  NotificationsEventSchema,
 ]);
 
 export type Event = z.infer<typeof EventSchema>;
@@ -203,6 +228,7 @@ export type ActivityEvent = z.infer<typeof ActivityEventSchema>;
 export type ScreenEvent = z.infer<typeof ScreenEventSchema>;
 export type GeofenceEvent = z.infer<typeof GeofenceEventSchema>;
 export type StayEvent = z.infer<typeof StayEventSchema>;
+export type NotificationsEvent = z.infer<typeof NotificationsEventSchema>;
 
 export const EVENT_TYPES = EventSchema.options.map((o) => o.shape.type.value) as EventType[];
 

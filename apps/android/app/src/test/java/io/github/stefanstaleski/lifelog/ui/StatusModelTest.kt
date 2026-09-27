@@ -119,6 +119,10 @@ class StatusModelTest {
         assertThat(ui(device = allOk.copy(standbyRestricted = true)).problems.map { it.fix }).containsExactly(Fix.APP_INFO)
     }
 
+    @Test fun notificationAccessMissingIsAProblem() {
+        assertThat(ui(device = allOk.copy(notificationListenerGranted = false)).problems.map { it.fix }).containsExactly(Fix.NOTIFICATION_ACCESS)
+    }
+
     @Test fun locationProblemsAskForTheRightStep() {
         assertThat(ui(device = allOk.copy(locationGranted = false, backgroundLocationGranted = false)).problems.single().title)
             .isEqualTo("Places are off")
@@ -151,6 +155,7 @@ class StatusModelTest {
             "Screen time", false,
             "Unlocks", true,
             "Steps", false,
+            "Notifications", false,
             "Movement", false,
             "Places", false,
             "Evening check-in", false,
