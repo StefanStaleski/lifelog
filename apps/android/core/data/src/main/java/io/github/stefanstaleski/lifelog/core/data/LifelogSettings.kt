@@ -37,6 +37,7 @@ class LifelogSettings @Inject constructor(private val store: DataStore<Preferenc
         val lastCollectError = stringPreferencesKey("collect_last_error")
         val lastUploadCount = intPreferencesKey("sync_last_upload_count")
         val onboardingDone = booleanPreferencesKey("onboarding_done")
+        val samsungSleepChecked = booleanPreferencesKey("samsung_never_sleeping_checked")
         fun watermark(collector: String) = longPreferencesKey("watermark_$collector")
     }
 
@@ -57,6 +58,13 @@ class LifelogSettings @Inject constructor(private val store: DataStore<Preferenc
 
     suspend fun setOnboardingDone() {
         store.edit { it[Keys.onboardingDone] = true }
+    }
+
+    /** The owner confirmed Lifelog is in Samsung's "Never sleeping apps" (can't be read programmatically). */
+    val samsungSleepChecked: Flow<Boolean> = store.data.map { it[Keys.samsungSleepChecked] ?: false }
+
+    suspend fun setSamsungSleepChecked() {
+        store.edit { it[Keys.samsungSleepChecked] = true }
     }
 
     /** Collected up to (exclusive) this instant; null before the first run. */

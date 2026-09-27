@@ -1,6 +1,7 @@
 package io.github.stefanstaleski.lifelog.ui.common
 
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -21,6 +22,24 @@ object SystemSettings {
 
     fun openNotificationSettings(context: Context) = context.startFirst(
         Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
+        appDetails(context),
+    )
+
+    /** The app's "Remove permissions if app is unused" switch (Android 11+). */
+    fun openAutoRevoke(context: Context) = context.startFirst(
+        Intent(Intent.ACTION_AUTO_REVOKE_PERMISSIONS, Uri.fromParts("package", context.packageName, null)),
+        appDetails(context),
+    )
+
+    /**
+     * Samsung's battery pages, where "Never sleeping apps" lives. The screen names differ between
+     * One UI versions, so try the known ones and fall back to the general battery page, then App info.
+     */
+    fun openSamsungBattery(context: Context) = context.startFirst(
+        Intent().setComponent(ComponentName("com.samsung.android.lool", "com.samsung.android.sm.battery.ui.BatteryActivity")),
+        Intent().setComponent(ComponentName("com.samsung.android.lool", "com.samsung.android.sm.ui.battery.BatteryActivity")),
+        Intent().setComponent(ComponentName("com.samsung.android.sm", "com.samsung.android.sm.ui.battery.BatteryActivity")),
+        Intent(Intent.ACTION_POWER_USAGE_SUMMARY),
         appDetails(context),
     )
 

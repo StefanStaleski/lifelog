@@ -16,9 +16,17 @@ import kotlinx.serialization.json.Json
 enum class Health { GOOD, ATTENTION, PAUSED }
 
 /** What the user can tap to fix a problem. */
-enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, LOCATION, SYNC_NOW, NONE }
+enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, LOCATION, AUTO_REVOKE, APP_INFO, SAMSUNG_BATTERY, SAMSUNG_BATTERY_DONE, SYNC_NOW, NONE }
 
-data class Problem(val emoji: String, val title: String, val detail: String, val fix: Fix, val action: String?)
+data class Problem(
+    val emoji: String,
+    val title: String,
+    val detail: String,
+    val fix: Fix,
+    val action: String?,
+    /** Optional second button, e.g. "I've done it" for checks Android can't verify. */
+    val secondary: Pair<String, Fix>? = null,
+)
 
 data class AppTime(val label: String, val minutes: Int)
 
@@ -92,6 +100,7 @@ fun buildStatusUi(
     pending: Int,
     lastByType: Map<String, Instant>,
     today: TodaySummary,
+    samsungSleepChecked: Boolean = true,
 ): StatusUi {
     val problems = buildList {
         if (!device.usageAccessGranted) {
@@ -99,6 +108,22 @@ fun buildStatusUi(
         }
         if (!device.batteryOptimizationIgnored) {
             add(Problem("🔋", "Battery saver may pause Lifelog", "Allow it to run in the background so no data is missed.", Fix.BATTERY, "Allow"))
+        }
+        if (device.standbyRestricted == true) {
+            add(Problem("🧊", "Android is holding Lifelog back", "It's in the restricted battery group. In App info → Battery, choose Unrestricted.", Fix.APP_INFO, "Open"))
+        }
+        if (device.autoRevokeExempt == false) {
+            add(Problem("🗝️", "Permissions may be removed", "Android removes permissions from apps you don't open. Turn that off for Lifelog.", Fix.AUTO_REVOKE, "Turn off"))
+        }
+        if (device.isSamsung && !samsungSleepChecked) {
+            add(
+                Problem(
+                    "🛌", "Keep Lifelog awake on Samsung",
+                    "Battery → Background usage limits → Never sleeping apps → add Lifelog.",
+                    Fix.SAMSUNG_BATTERY, "Open",
+                    secondary = "I've done it" to Fix.SAMSUNG_BATTERY_DONE,
+                ),
+            )
         }
         if (device.healthConnect == HealthAccess.NOT_GRANTED) {
             add(Problem("👟", "Steps are off", "Allow Lifelog to read steps and distance from Health Connect.", Fix.HEALTH_CONNECT, "Allow"))

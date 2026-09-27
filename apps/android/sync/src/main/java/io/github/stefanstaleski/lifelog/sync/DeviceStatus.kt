@@ -2,7 +2,9 @@ package io.github.stefanstaleski.lifelog.sync
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.app.usage.UsageStatsManager
 import android.os.BatteryManager
+import android.os.Build
 import android.os.PowerManager
 import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,6 +27,9 @@ data class DeviceStatus(
     val activityRecognitionGranted: Boolean? = null,
     val locationGranted: Boolean? = null,
     val backgroundLocationGranted: Boolean? = null,
+    /** Android put the app in the "restricted" standby bucket: background work barely runs. */
+    val standbyRestricted: Boolean? = null,
+    val isSamsung: Boolean = false,
 )
 
 interface DeviceStatusSource {
@@ -57,6 +62,9 @@ class AndroidDeviceStatusSource @Inject constructor(
             activityRecognitionGranted = activity.granted(),
             locationGranted = location.access().precise,
             backgroundLocationGranted = location.access().background,
+            standbyRestricted = context.getSystemService(UsageStatsManager::class.java).appStandbyBucket >=
+                UsageStatsManager.STANDBY_BUCKET_RESTRICTED,
+            isSamsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true),
         )
     }
 }

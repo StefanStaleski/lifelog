@@ -127,16 +127,23 @@ private fun ProblemCard(problem: Problem, onFix: (Fix) -> Unit) {
         colors = CardDefaults.cardColors(containerColor = status.attention, contentColor = status.onAttention),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(problem.emoji, fontSize = 28.sp)
-            Spacer(Modifier.width(14.dp))
-            Column(Modifier.weight(1f)) {
-                Text(problem.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                Text(problem.detail, style = MaterialTheme.typography.bodyMedium)
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(problem.emoji, fontSize = 28.sp)
+                Spacer(Modifier.width(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(problem.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(problem.detail, style = MaterialTheme.typography.bodyMedium)
+                }
             }
-            if (problem.action != null) {
-                Spacer(Modifier.width(8.dp))
-                Button(onClick = { onFix(problem.fix) }) { Text(problem.action) }
+            if (problem.action != null || problem.secondary != null) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    problem.secondary?.let { (label, fix) ->
+                        TextButton(onClick = { onFix(fix) }) { Text(label, color = LocalStatusColors.current.onAttention) }
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    problem.action?.let { Button(onClick = { onFix(problem.fix) }) { Text(it) } }
+                }
             }
         }
     }

@@ -57,18 +57,24 @@ class StatusViewModel @Inject constructor(
     }
 
     val ui: StateFlow<StatusUi?> = combine(
-        combine(ticker, settings.collectionPaused, checks, ::Triple),
+        combine(ticker, settings.collectionPaused, checks, settings.samsungSleepChecked) { t, p, c, s -> Quad(t, p, c, s) },
         settings.syncStatus,
         dao.observePendingCount(),
         lastByType,
         today,
-    ) { (now, paused, checks), sync, pending, last, today ->
-        buildStatusUi(now, paused, checks.device, checks.notificationsAllowed, sync, pending, last, today)
+    ) { (now, paused, checks, samsungChecked), sync, pending, last, today ->
+        buildStatusUi(now, paused, checks.device, checks.notificationsAllowed, sync, pending, last, today, samsungChecked)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     val now: StateFlow<Instant> = ticker.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), clock.instant())
 
     fun syncNow() = scheduler.syncNow()
+
+    fun confirmSamsungBattery() {
+        viewModelScope.launch { settings.setSamsungSleepChecked() }
+    }
+
+    private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
 
     fun setPaused(paused: Boolean) {
         viewModelScope.launch {
