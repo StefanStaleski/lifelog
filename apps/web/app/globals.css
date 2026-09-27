@@ -10,6 +10,17 @@
   --color-accent-soft: #e5ebff;
 }
 
+/* Chart roles (validated palette: dataviz reference slots 1-4, light on white / dark on stone-900). */
+:root {
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --viz-grid: #e7e5e4;
+  --viz-band: #eeeae6;
+  --viz-text: #78716c;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --color-good: #5bd68a;
@@ -18,6 +29,13 @@
     --color-attention-soft: #45300a;
     --color-accent: #9fb4ff;
     --color-accent-soft: #1d2748;
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --viz-grid: #292524;
+    --viz-band: #2a2624;
+    --viz-text: #a8a29e;
   }
 }
 
