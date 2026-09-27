@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import io.github.stefanstaleski.lifelog.collectors.usage.UsageRecord.Kind
 import io.github.stefanstaleski.lifelog.core.data.model.AppUsagePayload
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
+import io.github.stefanstaleski.lifelog.core.data.model.ScreenPayload
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -39,6 +40,14 @@ class UsageStatsCollectorTest {
         assertThat(usage.endedAt).isEqualTo(at(30))
         assertThat(usage.payload).isEqualTo(AppUsagePayload("com.example.chat", "Chat", "social", 20 * 60_000L, 1))
         assertThat(result.events.single { it.type == EventType.UNLOCK }.occurredAt).isEqualTo(at(15))
+    }
+
+    @Test fun emitsScreenEventsWithStableIds() = runTest {
+        records = listOf(r(3, Kind.SCREEN_ON, "android"), r(20, Kind.SCREEN_OFF, "android"))
+        val first = collector.collect(at(0), at(30)).events.filter { it.type == EventType.SCREEN }
+        assertThat(first.map { (it.payload as ScreenPayload).state }).containsExactly("on", "off").inOrder()
+        assertThat(collector.collect(at(0), at(30)).events.filter { it.type == EventType.SCREEN }.map { it.id })
+            .isEqualTo(first.map { it.id })
     }
 
     @Test fun nothingToDoInsideAnUnfinishedWindow() = runTest {

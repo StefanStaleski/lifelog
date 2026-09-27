@@ -2,6 +2,7 @@ package io.github.stefanstaleski.lifelog.sync
 
 import android.app.AppOpsManager
 import android.content.Context
+import android.os.BatteryManager
 import android.os.PowerManager
 import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -12,6 +13,10 @@ data class DeviceStatus(
     val appVersion: String,
     val usageAccessGranted: Boolean,
     val batteryOptimizationIgnored: Boolean,
+    val charging: Boolean? = null,
+    val batteryPct: Int? = null,
+    /** Exempt from "remove permissions if app is unused" (Android 11+ auto-revoke). */
+    val autoRevokeExempt: Boolean? = null,
 )
 
 fun interface DeviceStatusSource {
@@ -29,10 +34,14 @@ class AndroidDeviceStatusSource @Inject constructor(
             context.packageName,
         )
         val power = context.getSystemService(PowerManager::class.java)
+        val battery = context.getSystemService(BatteryManager::class.java)
         return DeviceStatus(
             appVersion = context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "unknown",
             usageAccessGranted = usageMode == AppOpsManager.MODE_ALLOWED,
             batteryOptimizationIgnored = power.isIgnoringBatteryOptimizations(context.packageName),
+            charging = battery.isCharging,
+            batteryPct = battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).takeIf { it in 0..100 },
+            autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted,
         )
     }
 }

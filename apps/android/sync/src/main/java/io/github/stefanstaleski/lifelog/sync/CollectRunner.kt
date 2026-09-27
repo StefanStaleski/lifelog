@@ -56,6 +56,9 @@ class CollectRunner @Inject constructor(
                 collectionPaused = paused,
                 usageAccessGranted = status.usageAccessGranted,
                 batteryOptimizationIgnored = status.batteryOptimizationIgnored,
+                charging = status.charging,
+                batteryPct = status.batteryPct,
+                autoRevokeExempt = status.autoRevokeExempt,
             ),
         )
         settings.recordCollect(now, errors)
