@@ -28,15 +28,32 @@ if (!res.ok) {
 }
 const gate = await res.json();
 
-const minutes = (m) => (m == null ? "–" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`);
+const minutes = (m) =>
+  m == null ? "–" : m >= 60 ? `${Math.floor(m / 60)} h ${m % 60} min` : `${m} min`;
 const day = (d) =>
-  new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 const local = (iso) =>
-  new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/Skopje", dateStyle: "medium", timeStyle: "short" });
+  new Date(iso).toLocaleString("en-GB", {
+    timeZone: "Europe/Skopje",
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 
 console.log(`\nLifelog gate · last ${gate.days} days\n`);
 console.log(`${gate.passed ? "✅" : "⏳"} ${gate.summary}\n`);
-console.log(["Date".padEnd(12), "Heartbeats".padEnd(11), "Screen time".padEnd(13), "Unlocks".padEnd(8), "Check-in"].join(" "));
+console.log(
+  [
+    "Date".padEnd(12),
+    "Heartbeats".padEnd(11),
+    "Screen time".padEnd(13),
+    "Unlocks".padEnd(8),
+    "Check-in",
+  ].join(" "),
+);
 for (const d of gate.per_day) {
   console.log(
     [
@@ -48,7 +65,10 @@ for (const d of gate.per_day) {
     ].join(" "),
   );
 }
-console.log(`\nGaps longer than ${gate.max_gap_min / 60} h: ${gate.gaps.length === 0 ? "none" : ""}`);
-for (const g of gate.gaps) console.log(`  ${local(g.from)} → ${local(g.to)}  (${minutes(g.minutes)})`);
+console.log(
+  `\nGaps longer than ${gate.max_gap_min / 60} h: ${gate.gaps.length === 0 ? "none" : ""}`,
+);
+for (const g of gate.gaps)
+  console.log(`  ${local(g.from)} → ${local(g.to)}  (${minutes(g.minutes)})`);
 if (gate.tracking_since) console.log(`\nTracking since ${local(gate.tracking_since)}`);
 process.exit(gate.passed ? 0 : 1);
