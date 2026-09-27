@@ -1,0 +1,36 @@
+package io.github.stefanstaleski.lifelog
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.stefanstaleski.lifelog.core.data.LifelogSettings
+import io.github.stefanstaleski.lifelog.sync.SyncScheduler
+import io.github.stefanstaleski.lifelog.ui.common.DeviceChecks
+import io.github.stefanstaleski.lifelog.ui.common.DeviceChecksRepository
+import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val settings: LifelogSettings,
+    private val deviceChecks: DeviceChecksRepository,
+    private val scheduler: SyncScheduler,
+) : ViewModel() {
+    /** null while loading, to avoid flashing onboarding on start. */
+    val onboardingDone: StateFlow<Boolean?> =
+        settings.onboardingDone.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    val checks: StateFlow<DeviceChecks> = deviceChecks.checks
+
+    fun refreshChecks() = deviceChecks.refresh()
+
+    fun finishOnboarding() {
+        viewModelScope.launch {
+            settings.setOnboardingDone()
+            scheduler.syncNow() // first collection right away, so the status screen fills up
+        }
+    }
+}

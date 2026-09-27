@@ -31,6 +31,10 @@ interface PendingEventDao {
     @Query("SELECT type, MAX(occurred_at) AS last_occurred_at FROM pending_events GROUP BY type")
     fun observeLastEventByType(): Flow<List<LastEventByType>>
 
+    /** Events of the given types captured at or after [fromMs] (uploaded or not). */
+    @Query("SELECT * FROM pending_events WHERE type IN (:types) AND occurred_at >= :fromMs ORDER BY occurred_at")
+    fun observeSince(types: List<String>, fromMs: Long): Flow<List<PendingEventEntity>>
+
     /** Drops uploaded events older than [before] (epoch ms); pending ones are never deleted. */
     @Query("DELETE FROM pending_events WHERE uploaded = 1 AND occurred_at < :before")
     suspend fun pruneUploaded(before: Long): Int

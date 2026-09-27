@@ -5,12 +5,49 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+/** Fixed meaning colours (green = fine, amber = look at me), independent of the wallpaper palette. */
+@Immutable
+data class StatusColors(
+    val good: Color,
+    val onGood: Color,
+    val attention: Color,
+    val onAttention: Color,
+    val goodDot: Color,
+    val attentionDot: Color,
+)
+
+private val LightStatus = StatusColors(
+    good = Color(0xFFDDF4E4),
+    onGood = Color(0xFF0B5A2A),
+    attention = Color(0xFFFFEFD2),
+    onAttention = Color(0xFF6E4400),
+    goodDot = Color(0xFF1E9E4A),
+    attentionDot = Color(0xFFE08A00),
+)
+
+private val DarkStatus = StatusColors(
+    good = Color(0xFF123A21),
+    onGood = Color(0xFFB9F0C9),
+    attention = Color(0xFF45300A),
+    onAttention = Color(0xFFFFDCA0),
+    goodDot = Color(0xFF5BD68A),
+    attentionDot = Color(0xFFFFB84D),
+)
+
+val LocalStatusColors = staticCompositionLocalOf { LightStatus }
 
 @Composable
 fun LifelogTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
-    // minSdk 30, so Material You dynamic color is always available
-    val colors = if (isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    MaterialTheme(colorScheme = colors, content = content)
+    val dark = isSystemInDarkTheme()
+    // minSdk 30, so Material You dynamic colour is always available
+    val colors = if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    androidx.compose.runtime.CompositionLocalProvider(LocalStatusColors provides if (dark) DarkStatus else LightStatus) {
+        MaterialTheme(colorScheme = colors, content = content)
+    }
 }
