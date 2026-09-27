@@ -104,6 +104,21 @@ class StatusModelTest {
         assertThat(ui(device = allOk.copy(activityRecognitionGranted = null)).problems).isEmpty()
     }
 
+    @Test fun samsungSleepingAppsIsAChecklistItemUntilConfirmed() {
+        val samsung = allOk.copy(isSamsung = true)
+        val card = buildStatusUi(now, false, samsung, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = false)
+            .problems.single()
+        assertThat(card.fix).isEqualTo(Fix.SAMSUNG_BATTERY)
+        assertThat(card.secondary).isEqualTo("I've done it" to Fix.SAMSUNG_BATTERY_DONE)
+        assertThat(buildStatusUi(now, false, samsung, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = true).problems).isEmpty()
+        assertThat(buildStatusUi(now, false, allOk, true, SyncStatus(lastSuccessAt = now), 0, emptyMap(), TodaySummary.EMPTY, samsungSleepChecked = false).problems).isEmpty()
+    }
+
+    @Test fun autoRevokeAndRestrictedBucketAreProblems() {
+        assertThat(ui(device = allOk.copy(autoRevokeExempt = false)).problems.map { it.fix }).containsExactly(Fix.AUTO_REVOKE)
+        assertThat(ui(device = allOk.copy(standbyRestricted = true)).problems.map { it.fix }).containsExactly(Fix.APP_INFO)
+    }
+
     @Test fun locationProblemsAskForTheRightStep() {
         assertThat(ui(device = allOk.copy(locationGranted = false, backgroundLocationGranted = false)).problems.single().title)
             .isEqualTo("Places are off")

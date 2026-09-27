@@ -80,7 +80,14 @@ class ScreenshotTest {
         StatusScreen(
             status(
                 Health.ATTENTION,
-                listOf(Problem("🔋", "Battery saver may pause Lifelog", "Allow it to run in the background so no data is missed.", Fix.BATTERY, "Allow")),
+                listOf(
+                    Problem("🔋", "Battery saver may pause Lifelog", "Allow it to run in the background so no data is missed.", Fix.BATTERY, "Allow"),
+                    Problem(
+                        "🛌", "Keep Lifelog awake on Samsung",
+                        "Battery → Background usage limits → Never sleeping apps → add Lifelog.",
+                        Fix.SAMSUNG_BATTERY, "Open", secondary = "I've done it" to Fix.SAMSUNG_BATTERY_DONE,
+                    ),
+                ),
             ),
             now,
             StatusActions(onCheckin = {}),

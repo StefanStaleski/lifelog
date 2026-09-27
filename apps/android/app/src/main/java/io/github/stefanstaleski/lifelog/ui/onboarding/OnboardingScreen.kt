@@ -188,7 +188,8 @@ private fun SamsungTip(onAppInfo: () -> Unit) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("💡 Samsung tip", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
-                "Samsung phones also put apps to sleep. In App info → Battery, choose \"Unrestricted\".",
+                "Samsung phones also put apps to sleep. In App info → Battery choose \"Unrestricted\", and add " +
+                    "Lifelog to Battery → Background usage limits → Never sleeping apps.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             OutlinedButton(onClick = onAppInfo) { Text("Open app info") }
