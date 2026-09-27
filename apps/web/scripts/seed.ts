@@ -56,7 +56,7 @@ const at = (dayStart: Date, hour: number) =>
 async function main() {
   const db = getDb();
   await db.execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily, dismissed_suggestions`,
   );
   const [home, work, gym] = await db
     .insert(places)
