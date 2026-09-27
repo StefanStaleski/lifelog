@@ -43,13 +43,12 @@ owner's request; Android work is unit-tested here and installed on the S24 after
 | 3.4 | Trends view (7/30/90/365 days, rolling average band, week-over-week) |
 | 3.5 | Time view (hours per place kind, top apps by category) + places editor on a map |
 | 3.6 | Android: notification counts per app per hour (listener, no text), onboarding step |
-| 3.7 | Bank parsing framework (phone, hash only) + transactions + Money view |
+| 3.7 | ~~Bank parsing + Money view~~ **skipped**: mBanka (Komercijalna banka) notifications only say "Priliv/Odliv na sredstva" with no amounts. Work so far is parked on branch `parked/spending-framework` (options later: bank SMS alerts or statement import). |
 | 3.8 | Weather (Open-Meteo) Edge Function + nightly job; calendar prepared but off until you connect Google |
 | 3.9 | Docs, deploy, final end-to-end check |
 
 ## Needs the owner (not blocking)
 
-- Bank: which bank, notification or SMS, 2–3 anonymised sample messages.
 - Google Calendar: one-time OAuth approval.
 - Home / work / gym: set in the dashboard's places editor.
 - Install the new app build on the S24 and grant the new permissions.

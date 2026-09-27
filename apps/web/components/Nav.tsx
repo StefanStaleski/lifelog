@@ -7,7 +7,6 @@ export const NAV = [
   { href: "/", label: "Today", icon: "☀️" },
   { href: "/trends", label: "Trends", icon: "📈" },
   { href: "/time", label: "Time", icon: "🕰️" },
-  { href: "/money", label: "Money", icon: "💶" },
 ] as const;
 
 function isActive(pathname: string, href: string) {
@@ -41,7 +40,7 @@ export function BottomNav() {
       className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200 bg-stone-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden dark:border-stone-800 dark:bg-stone-950/95"
       aria-label="Main"
     >
-      <ul className="grid grid-cols-4">
+      <ul className="grid grid-cols-3">
         {NAV.map((item) => (
           <li key={item.href}>
             <Link
