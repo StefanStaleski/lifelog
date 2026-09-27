@@ -1,5 +1,7 @@
 package io.github.stefanstaleski.lifelog.core.data.model
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -36,6 +38,8 @@ data class CheckinPayload(
     val note: String?,
 )
 
+/** Phase 2 fields are optional on the server, so they are left out (not null) when unknown. */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class HeartbeatPayload(
     @SerialName("app_version") val appVersion: String,
@@ -43,4 +47,44 @@ data class HeartbeatPayload(
     @SerialName("collection_paused") val collectionPaused: Boolean,
     @SerialName("usage_access_granted") val usageAccessGranted: Boolean,
     @SerialName("battery_optimization_ignored") val batteryOptimizationIgnored: Boolean,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val charging: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("battery_pct") val batteryPct: Int? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("health_connect_granted") val healthConnectGranted: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("activity_recognition_granted") val activityRecognitionGranted: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("location_granted") val locationGranted: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("background_location_granted") val backgroundLocationGranted: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("notification_listener_granted") val notificationListenerGranted: Boolean? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) @SerialName("auto_revoke_exempt") val autoRevokeExempt: Boolean? = null,
 )
+
+/** One finished UTC hour of Health Connect data (the event's occurred_at..ended_at). */
+@Serializable
+data class StepsPayload(
+    val steps: Int,
+    @SerialName("distance_m") val distanceM: Int,
+)
+
+/** Activity Recognition transition. [activity]: still, walking, running, on_bicycle, in_vehicle. */
+@Serializable
+data class ActivityPayload(
+    val activity: String,
+    /** "enter" or "exit" */
+    val transition: String,
+)
+
+@Serializable
+data class ScreenPayload(
+    /** "on" or "off" */
+    val state: String,
+)
+
+@Serializable
+data class GeofencePayload(
+    @SerialName("place_id") val placeId: String,
+    /** "enter" or "exit" */
+    val transition: String,
+)
+
+/** A 15+ minute stay outside named places; coordinates rounded to 3 decimals (~100 m). */
+@Serializable
+data class StayPayload(val lat: Double, val lng: Double)

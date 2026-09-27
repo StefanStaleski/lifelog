@@ -1,0 +1,21 @@
+{
+  "id": "c28313cd-11e8-4b9b-9b8f-f56950aa50a4",
+  "type": "heartbeat",
+  "occurred_at": "2026-09-27T09:00:01Z",
+  "device_id": "s24",
+  "payload": {
+    "app_version": "0.2.0",
+    "pending_count": 0,
+    "collection_paused": false,
+    "usage_access_granted": true,
+    "battery_optimization_ignored": true,
+    "charging": false,
+    "battery_pct": 81,
+    "health_connect_granted": true,
+    "activity_recognition_granted": true,
+    "location_granted": true,
+    "background_location_granted": false,
+    "notification_listener_granted": false,
+    "auto_revoke_exempt": true
+  }
+}

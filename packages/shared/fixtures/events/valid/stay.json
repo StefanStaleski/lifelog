@@ -1,0 +1,8 @@
+{
+  "id": "c94b072c-af67-426b-8d1e-f554d47a6413",
+  "type": "stay",
+  "occurred_at": "2026-09-27T12:05:00Z",
+  "ended_at": "2026-09-27T13:10:00Z",
+  "device_id": "s24",
+  "payload": { "lat": 41.996, "lng": 21.431 }
+}

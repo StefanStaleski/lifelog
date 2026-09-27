@@ -1,0 +1,7 @@
+{
+  "id": "d367555f-0579-4ef7-821a-b7860be76849",
+  "type": "activity",
+  "occurred_at": "2026-09-27T07:12:40Z",
+  "device_id": "s24",
+  "payload": { "activity": "tilting", "transition": "enter" }
+}

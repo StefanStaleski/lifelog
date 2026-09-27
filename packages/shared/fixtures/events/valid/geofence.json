@@ -1,0 +1,7 @@
+{
+  "id": "b8f41b0a-7644-4edb-b579-ab41815c0848",
+  "type": "geofence",
+  "occurred_at": "2026-09-27T07:40:00Z",
+  "device_id": "s24",
+  "payload": { "place_id": "6c65bad9-31ff-4f68-bebc-8a51b4c30ca1", "transition": "enter" }
+}
