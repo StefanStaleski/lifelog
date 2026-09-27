@@ -6,14 +6,15 @@ Personal, single-user life tracker. A sideloaded Android app (Galaxy S24) passiv
 
 ```
 apps/android/      Kotlin app: Compose, Room, WorkManager, Hilt
-  app/             UI: onboarding/permissions, check-in, status screen
-  core/data/       Room DB (pending_events) + DAOs
+  app/             UI: onboarding, status screen, check-in (+ 21:30 reminder, boot receiver)
+  core/data/       Room (pending_events), EventWriter, payload models, LifelogSettings (DataStore)
   core/network/    HTTP client, gzip JSON batches, device token auth
-  collectors/      One class per data source (Collector interface)
-  sync/            WorkManager: poll collectors every 30 min, upload batches of 500
+  collectors/      One PolledCollector per data source (Hilt set); usage/ = screen time + unlocks
+  sync/            CollectRunner + heartbeat, Uploader (batches of 500), WorkManager jobs every 30 min
 apps/web/          Next.js (App Router) on Vercel: /api/v1 routes, dashboard, MCP route
-packages/shared/   TypeScript shared by web code: event types, zod schemas, Drizzle schema
-supabase/          migrations, pg_cron SQL, Edge Functions (weather, calendar)
+packages/shared/   Wire contract (zod: events.ts, api.ts) + fixtures/, Drizzle schema (src/db)
+supabase/          migrations (incl. process_events SQL), pgTAP tests; later pg_cron + Edge Functions
+scripts/           smoke.sh, setup-supabase.sh, gate.mjs
 docs/SPEC.md       Source of truth for scope and design
 ```
 
@@ -28,7 +29,7 @@ Tooling: pnpm workspaces (Node 22, version pinned via `packageManager`; `corepac
 pnpm install
 pnpm lint                             # eslint + prettier --check
 pnpm typecheck
-pnpm test
+pnpm test                             # web tests need the local DB: run `pnpm db:start` first
 pnpm build
 pnpm --filter web dev                 # local dashboard + API on :3000
 
@@ -46,7 +47,7 @@ adb logcat -s Lifelog                 # app log tag
 ./gradlew :app:testDebugUnitTest -Plifelog.screenshots   # render screens to app/build/screenshots/*.png (Roborazzi)
 ```
 
-Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.android`), versions in `apps/android/gradle/libs.versions.toml`, compileSdk 37 / targetSdk 36 / minSdk 30, package `io.github.stefanstaleski.lifelog`. Per-machine values go in git-ignored `apps/android/local.properties`: `lifelog.apiBaseUrl` (default `http://localhost:3000/`) and `lifelog.deviceToken`, exposed as `BuildConfig.API_BASE_URL` / `DEVICE_TOKEN`. Cleartext HTTP is allowed only to localhost.
+Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.android`), versions in `apps/android/gradle/libs.versions.toml`, compileSdk 37 / targetSdk 36 / minSdk 30, package `io.github.stefanstaleski.lifelog`. Per-machine values go in git-ignored `apps/android/local.properties`: `lifelog.apiBaseUrl` (default `http://localhost:3000/`) and `lifelog.deviceToken`, exposed as `BuildConfig.API_BASE_URL` / `DEVICE_TOKEN`. Cleartext HTTP is allowed only to localhost. The local copy on this machine points at production.
 
 ## Deploy
 
@@ -62,7 +63,7 @@ Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.and
 - **Event ids are UUIDs generated on the device** at capture time. Ingest uses `ON CONFLICT (id) DO NOTHING`, so re-sending a batch is always safe. Never generate event ids server-side.
 - **Local-first:** every event is written to Room before any network call.
 - **No raw content stored:** no message bodies, no notification text, no call/SMS content, no raw GPS trace. Store counts, derived visits, salted hashes of phone numbers, and a hash of bank message text (for de-dup), never the text itself.
-- **Wire contract** lives in `packages/shared/src/events.ts` (zod) with examples in `packages/shared/fixtures/events/{valid,invalid}`. Any change to an event type updates the schema, the fixtures and the Kotlin models in the same PR; both test suites run against the fixtures.
+- **Wire contract** lives in `packages/shared/src/events.ts` and `api.ts` (zod) with examples in `packages/shared/fixtures/`. Any change to an event type updates the schema, the fixtures and the Kotlin models in the same PR; both test suites run against the fixtures.
 - **Schema changes** go through `packages/shared/src/db/schema.ts` + `pnpm db:generate`; never edit a generated migration. Hand-written SQL (functions, grants, pg_cron) goes in `drizzle-kit generate --custom` migrations. CI fails if migrations drift from the schema.
 - `events` is append-only; typed tables and `daily_summary` are derived and can be rebuilt from it.
 - RLS enabled on every table with no public policies. Only server code uses the service role key, which lives in Vercel env vars / git-ignored `.env.local`, never in the app or browser.
