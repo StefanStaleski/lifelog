@@ -10,6 +10,11 @@ import io.github.stefanstaleski.lifelog.collectors.PolledCollector
 import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
 import io.github.stefanstaleski.lifelog.collectors.health.StepsCollector
 import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
+import io.github.stefanstaleski.lifelog.collectors.places.FusedLocationSource
+import io.github.stefanstaleski.lifelog.collectors.places.GeofenceRegistrar
+import io.github.stefanstaleski.lifelog.collectors.places.Geofencer
+import io.github.stefanstaleski.lifelog.collectors.places.LocationSource
+import io.github.stefanstaleski.lifelog.collectors.places.StayCollector
 import io.github.stefanstaleski.lifelog.collectors.usage.AndroidAppInfoProvider
 import io.github.stefanstaleski.lifelog.collectors.usage.AndroidUsageEventSource
 import io.github.stefanstaleski.lifelog.collectors.usage.AppInfoProvider
@@ -30,6 +35,16 @@ abstract class CollectorsModule {
     @Binds
     @IntoSet
     abstract fun steps(impl: StepsCollector): PolledCollector
+
+    @Binds
+    @IntoSet
+    abstract fun stays(impl: StayCollector): PolledCollector
+
+    @Binds
+    abstract fun geofencer(impl: GeofenceRegistrar): Geofencer
+
+    @Binds
+    abstract fun locationSource(impl: FusedLocationSource): LocationSource
 
     @Binds
     abstract fun stepsSource(impl: HealthConnectStepsSource): StepsSource

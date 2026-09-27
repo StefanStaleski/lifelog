@@ -8,6 +8,7 @@ import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
 import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
+import io.github.stefanstaleski.lifelog.collectors.places.LocationSource
 import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
 import javax.inject.Inject
 
@@ -22,6 +23,8 @@ data class DeviceStatus(
     val autoRevokeExempt: Boolean? = null,
     val healthConnect: HealthAccess? = null,
     val activityRecognitionGranted: Boolean? = null,
+    val locationGranted: Boolean? = null,
+    val backgroundLocationGranted: Boolean? = null,
 )
 
 interface DeviceStatusSource {
@@ -32,6 +35,7 @@ class AndroidDeviceStatusSource @Inject constructor(
     @ApplicationContext private val context: Context,
     private val steps: StepsSource,
     private val activity: ActivityTracker,
+    private val location: LocationSource,
 ) : DeviceStatusSource {
     override suspend fun read(): DeviceStatus {
         val appOps = context.getSystemService(AppOpsManager::class.java)
@@ -51,6 +55,8 @@ class AndroidDeviceStatusSource @Inject constructor(
             autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted,
             healthConnect = runCatching { steps.access() }.getOrDefault(HealthAccess.NOT_INSTALLED),
             activityRecognitionGranted = activity.granted(),
+            locationGranted = location.access().precise,
+            backgroundLocationGranted = location.access().background,
         )
     }
 }

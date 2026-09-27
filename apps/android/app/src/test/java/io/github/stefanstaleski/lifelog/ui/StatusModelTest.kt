@@ -104,6 +104,20 @@ class StatusModelTest {
         assertThat(ui(device = allOk.copy(activityRecognitionGranted = null)).problems).isEmpty()
     }
 
+    @Test fun locationProblemsAskForTheRightStep() {
+        assertThat(ui(device = allOk.copy(locationGranted = false, backgroundLocationGranted = false)).problems.single().title)
+            .isEqualTo("Places are off")
+        assertThat(ui(device = allOk.copy(locationGranted = true, backgroundLocationGranted = false)).problems.single().title)
+            .isEqualTo("Location only while using the app")
+        assertThat(ui(device = allOk.copy(locationGranted = true, backgroundLocationGranted = true)).problems).isEmpty()
+    }
+
+    @Test fun placesAreFreshFromEitherGeofencesOrStays() {
+        val places = ui(last = mapOf("stay" to now.minusSeconds(3600))).sources.single { it.name == "Places" }
+        assertThat(places.fresh).isTrue()
+        assertThat(places.lastSeen).isEqualTo(now.minusSeconds(3600))
+    }
+
     @Test fun healthConnectNotGrantedIsAProblemButNotInstalledIsNot() {
         assertThat(ui(device = allOk.copy(healthConnect = HealthAccess.NOT_GRANTED)).problems.map { it.fix })
             .containsExactly(Fix.HEALTH_CONNECT)
@@ -123,6 +137,7 @@ class StatusModelTest {
             "Unlocks", true,
             "Steps", false,
             "Movement", false,
+            "Places", false,
             "Evening check-in", false,
             "Background check", false,
         )

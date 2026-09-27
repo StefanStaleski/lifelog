@@ -58,7 +58,15 @@ class CollectRunnerTest {
         object : DeviceStatusSource {
             override suspend fun read() = status
         },
+        config,
     )
+
+    private var configCalls = 0
+    private var configFails = false
+    private val config = ConfigRefresher {
+        configCalls++
+        if (configFails) throw java.io.IOException("offline")
+    }
 
     private suspend fun stored() = db.pendingEventDao().pendingBatch(1000)
 
@@ -133,6 +141,14 @@ class CollectRunnerTest {
 
         // The second run still starts a day back, not from the failed run's time.
         assertThat(collector.calls.last().first).isEqualTo(Instant.parse("2026-09-26T08:05:00Z"))
+    }
+
+    @Test fun refreshesConfigButCarriesOnOffline() = runTest {
+        configFails = true
+        val summary = runner(FakeCollector()).run()
+        assertThat(configCalls).isEqualTo(1)
+        assertThat(summary.errors).isEmpty() // offline is not a data-source problem
+        assertThat(summary.written).isEqualTo(1)
     }
 
     @Test fun recollectingTheSameWindowDoesNotDuplicate() = runTest {

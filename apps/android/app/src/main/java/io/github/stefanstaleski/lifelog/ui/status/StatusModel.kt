@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 enum class Health { GOOD, ATTENTION, PAUSED }
 
 /** What the user can tap to fix a problem. */
-enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, SYNC_NOW, NONE }
+enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, LOCATION, SYNC_NOW, NONE }
 
 data class Problem(val emoji: String, val title: String, val detail: String, val fix: Fix, val action: String?)
 
@@ -68,13 +68,17 @@ fun todaySummary(events: List<PendingEventEntity>, today: LocalDate, zone: ZoneI
 }
 
 /** Sources shown on the phone, with how long each may be quiet before it looks wrong. */
-private data class SourceSpec(val type: String, val emoji: String, val name: String, val quietOk: Duration, val hint: String)
+private data class SourceSpec(val types: List<String>, val emoji: String, val name: String, val quietOk: Duration, val hint: String) {
+    constructor(type: String, emoji: String, name: String, quietOk: Duration, hint: String) :
+        this(listOf(type), emoji, name, quietOk, hint)
+}
 
 private val sourceSpecs = listOf(
     SourceSpec(EventType.APP_USAGE.wire, "📱", "Screen time", Duration.ofHours(24), "Counted in 30-minute blocks"),
     SourceSpec(EventType.UNLOCK.wire, "🔓", "Unlocks", Duration.ofHours(24), "Each time you unlock the phone"),
     SourceSpec(EventType.STEPS.wire, "👟", "Steps", Duration.ofHours(24), "Hourly, from Health Connect"),
     SourceSpec(EventType.ACTIVITY.wire, "🚶", "Movement", Duration.ofHours(24), "Walking, driving, still"),
+    SourceSpec(listOf(EventType.GEOFENCE.wire, EventType.STAY.wire), "📍", "Places", Duration.ofDays(3), "Arrivals, departures and longer stops"),
     SourceSpec(EventType.CHECKIN.wire, "🌙", "Evening check-in", Duration.ofHours(48), "Once a day, at 21:30"),
     SourceSpec(EventType.HEARTBEAT.wire, "💓", "Background check", Duration.ofHours(2), "Lifelog checking in every 30 min"),
 )
@@ -102,6 +106,11 @@ fun buildStatusUi(
         if (device.activityRecognitionGranted == false) {
             add(Problem("🚶", "Movement detection is off", "Allow physical activity so Lifelog knows when you walk, drive or rest.", Fix.ACTIVITY, "Allow"))
         }
+        if (device.locationGranted == false) {
+            add(Problem("📍", "Places are off", "Allow location so Lifelog can count time at home, work and the gym.", Fix.LOCATION, "Allow"))
+        } else if (device.backgroundLocationGranted == false) {
+            add(Problem("📍", "Location only while using the app", "Choose \"Allow all the time\" so arrivals are noticed in the background.", Fix.LOCATION, "Allow"))
+        }
         if (!notificationsAllowed) {
             add(Problem("🔔", "Reminders are off", "You won't get the 21:30 check-in nudge.", Fix.NOTIFICATIONS, "Turn on"))
         }
@@ -113,7 +122,7 @@ fun buildStatusUi(
     }
 
     val sources = sourceSpecs.map { spec ->
-        val last = lastByType[spec.type]
+        val last = spec.types.mapNotNull { lastByType[it] }.maxOrNull()
         SourceRow(spec.emoji, spec.name, last, fresh = last != null && Duration.between(last, now) <= spec.quietOk, spec.hint)
     }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
+import io.github.stefanstaleski.lifelog.collectors.places.Geofencer
 import io.github.stefanstaleski.lifelog.core.data.LocalZone
 import io.github.stefanstaleski.lifelog.sync.SyncScheduler
 import java.time.Clock
@@ -40,6 +41,7 @@ class BootReceiver : BroadcastReceiver() {
     @Inject lateinit var reminder: CheckinReminder
     @Inject lateinit var syncScheduler: SyncScheduler
     @Inject lateinit var activityTracker: ActivityTracker
+    @Inject lateinit var geofencer: Geofencer
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -51,6 +53,14 @@ class BootReceiver : BroadcastReceiver() {
                 reminder.scheduleNext()
                 syncScheduler.schedulePeriodic()
                 activityTracker.register()
+                val pending = goAsync()
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        geofencer.registerStored()
+                    } finally {
+                        pending.finish()
+                    }
+                }
             }
         }
     }
