@@ -7,7 +7,10 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import dagger.multibindings.Multibinds
 import io.github.stefanstaleski.lifelog.collectors.PolledCollector
+import io.github.stefanstaleski.lifelog.collectors.health.AndroidStepCounterReader
 import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
+import io.github.stefanstaleski.lifelog.collectors.health.StepCounterReader
+import io.github.stefanstaleski.lifelog.collectors.health.StepSensorCollector
 import io.github.stefanstaleski.lifelog.collectors.notifications.NotificationCollector
 import io.github.stefanstaleski.lifelog.collectors.health.StepsCollector
 import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
@@ -50,6 +53,13 @@ abstract class CollectorsModule {
 
     @Binds
     abstract fun locationSource(impl: FusedLocationSource): LocationSource
+
+    @Binds
+    @IntoSet
+    abstract fun stepSensor(impl: StepSensorCollector): PolledCollector
+
+    @Binds
+    abstract fun stepCounterReader(impl: AndroidStepCounterReader): StepCounterReader
 
     @Binds
     abstract fun stepsSource(impl: HealthConnectStepsSource): StepsSource
