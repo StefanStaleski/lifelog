@@ -7,6 +7,9 @@ import { z } from "zod";
 
 export const MAX_BATCH_SIZE = 500;
 
+/** device_id used by scripts/smoke.sh; its events are ignored by the gate and stats. */
+export const SMOKE_TEST_DEVICE_ID = "smoke-test";
+
 /** ISO-8601 UTC instant with a `Z` suffix; offsets are rejected. */
 const utcInstant = z.iso.datetime({ offset: false, local: false });
 
