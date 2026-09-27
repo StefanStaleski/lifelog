@@ -63,6 +63,7 @@ class CollectRunner @Inject constructor(
                 // null when Health Connect isn't on the phone at all (nothing to grant)
                 healthConnectGranted = status.healthConnect?.takeIf { it != HealthAccess.NOT_INSTALLED }
                     ?.let { it == HealthAccess.AVAILABLE },
+                activityRecognitionGranted = status.activityRecognitionGranted,
             ),
         )
         settings.recordCollect(now, errors)

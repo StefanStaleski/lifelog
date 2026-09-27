@@ -17,6 +17,15 @@
     <uses-permission android:name="android.permission.health.READ_DISTANCE" />
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" />
 
+    <!-- Activity Recognition transitions (still / walking / vehicle ...). -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
+    <application>
+        <receiver
+            android:name=".activity.ActivityTransitionReceiver"
+            android:exported="false" />
+    </application>
+
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
     </queries>

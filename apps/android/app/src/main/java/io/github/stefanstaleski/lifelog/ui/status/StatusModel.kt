@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 enum class Health { GOOD, ATTENTION, PAUSED }
 
 /** What the user can tap to fix a problem. */
-enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, SYNC_NOW, NONE }
+enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, SYNC_NOW, NONE }
 
 data class Problem(val emoji: String, val title: String, val detail: String, val fix: Fix, val action: String?)
 
@@ -74,6 +74,7 @@ private val sourceSpecs = listOf(
     SourceSpec(EventType.APP_USAGE.wire, "📱", "Screen time", Duration.ofHours(24), "Counted in 30-minute blocks"),
     SourceSpec(EventType.UNLOCK.wire, "🔓", "Unlocks", Duration.ofHours(24), "Each time you unlock the phone"),
     SourceSpec(EventType.STEPS.wire, "👟", "Steps", Duration.ofHours(24), "Hourly, from Health Connect"),
+    SourceSpec(EventType.ACTIVITY.wire, "🚶", "Movement", Duration.ofHours(24), "Walking, driving, still"),
     SourceSpec(EventType.CHECKIN.wire, "🌙", "Evening check-in", Duration.ofHours(48), "Once a day, at 21:30"),
     SourceSpec(EventType.HEARTBEAT.wire, "💓", "Background check", Duration.ofHours(2), "Lifelog checking in every 30 min"),
 )
@@ -97,6 +98,9 @@ fun buildStatusUi(
         }
         if (device.healthConnect == HealthAccess.NOT_GRANTED) {
             add(Problem("👟", "Steps are off", "Allow Lifelog to read steps and distance from Health Connect.", Fix.HEALTH_CONNECT, "Allow"))
+        }
+        if (device.activityRecognitionGranted == false) {
+            add(Problem("🚶", "Movement detection is off", "Allow physical activity so Lifelog knows when you walk, drive or rest.", Fix.ACTIVITY, "Allow"))
         }
         if (!notificationsAllowed) {
             add(Problem("🔔", "Reminders are off", "You won't get the 21:30 check-in nudge.", Fix.NOTIFICATIONS, "Turn on"))

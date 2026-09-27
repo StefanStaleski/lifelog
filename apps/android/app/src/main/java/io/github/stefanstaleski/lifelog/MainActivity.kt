@@ -59,6 +59,12 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
     }
     val requestHealthConnect = { healthPermission.launch(main.healthPermissions()) }
 
+    val activityPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (!granted) SystemSettings.openAppInfo(context) // denied twice: Android won't ask again
+        main.onActivityPermissionResult()
+    }
+    val requestActivity = { activityPermission.launch(Manifest.permission.ACTIVITY_RECOGNITION) }
+
     val requestNotifications = {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -76,6 +82,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                 onBattery = { SystemSettings.requestIgnoreBatteryOptimizations(context) },
                 onNotifications = requestNotifications,
                 onHealthConnect = requestHealthConnect,
+                onActivity = requestActivity,
                 onAppInfo = { SystemSettings.openAppInfo(context) },
                 onFinish = main::finishOnboarding,
             ),
@@ -95,6 +102,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                                 Fix.BATTERY -> SystemSettings.requestIgnoreBatteryOptimizations(context)
                                 Fix.NOTIFICATIONS -> requestNotifications()
                                 Fix.HEALTH_CONNECT -> requestHealthConnect()
+                                Fix.ACTIVITY -> requestActivity()
                                 Fix.SYNC_NOW -> status.syncNow()
                                 Fix.NONE -> Unit
                             }

@@ -6,6 +6,7 @@ import android.os.BatteryManager
 import android.os.PowerManager
 import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
 import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
 import javax.inject.Inject
@@ -20,6 +21,7 @@ data class DeviceStatus(
     /** Exempt from "remove permissions if app is unused" (Android 11+ auto-revoke). */
     val autoRevokeExempt: Boolean? = null,
     val healthConnect: HealthAccess? = null,
+    val activityRecognitionGranted: Boolean? = null,
 )
 
 interface DeviceStatusSource {
@@ -29,6 +31,7 @@ interface DeviceStatusSource {
 class AndroidDeviceStatusSource @Inject constructor(
     @ApplicationContext private val context: Context,
     private val steps: StepsSource,
+    private val activity: ActivityTracker,
 ) : DeviceStatusSource {
     override suspend fun read(): DeviceStatus {
         val appOps = context.getSystemService(AppOpsManager::class.java)
@@ -47,6 +50,7 @@ class AndroidDeviceStatusSource @Inject constructor(
             batteryPct = battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).takeIf { it in 0..100 },
             autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted,
             healthConnect = runCatching { steps.access() }.getOrDefault(HealthAccess.NOT_INSTALLED),
+            activityRecognitionGranted = activity.granted(),
         )
     }
 }

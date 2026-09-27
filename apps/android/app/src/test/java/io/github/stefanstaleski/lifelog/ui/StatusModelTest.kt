@@ -99,6 +99,11 @@ class StatusModelTest {
         assertThat(todaySummary(emptyList(), LocalDate.of(2026, 9, 27), LocalZone, LifelogJson).steps).isNull()
     }
 
+    @Test fun activityPermissionMissingIsAProblemOnlyWhenKnown() {
+        assertThat(ui(device = allOk.copy(activityRecognitionGranted = false)).problems.map { it.fix }).containsExactly(Fix.ACTIVITY)
+        assertThat(ui(device = allOk.copy(activityRecognitionGranted = null)).problems).isEmpty()
+    }
+
     @Test fun healthConnectNotGrantedIsAProblemButNotInstalledIsNot() {
         assertThat(ui(device = allOk.copy(healthConnect = HealthAccess.NOT_GRANTED)).problems.map { it.fix })
             .containsExactly(Fix.HEALTH_CONNECT)
@@ -117,6 +122,7 @@ class StatusModelTest {
             "Screen time", false,
             "Unlocks", true,
             "Steps", false,
+            "Movement", false,
             "Evening check-in", false,
             "Background check", false,
         )

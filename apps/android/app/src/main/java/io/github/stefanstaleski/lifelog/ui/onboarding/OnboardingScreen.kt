@@ -40,6 +40,7 @@ data class OnboardingActions(
     val onBattery: () -> Unit = {},
     val onNotifications: () -> Unit = {},
     val onHealthConnect: () -> Unit = {},
+    val onActivity: () -> Unit = {},
     val onAppInfo: () -> Unit = {},
     val onFinish: () -> Unit = {},
 )
@@ -77,6 +78,11 @@ fun OnboardingScreen(checks: DeviceChecks, actions: OnboardingActions) {
             "Reads your steps and distance from Health Connect. In Samsung Health, make sure Settings → Health Connect sync is on.",
             checks.device.healthConnect == HealthAccess.AVAILABLE, required = false, "Allow", actions.onHealthConnect,
         ).takeIf { checks.device.healthConnect != HealthAccess.NOT_INSTALLED },
+        Step(
+            "🚶", "Walking, driving or still",
+            "Lets Android tell Lifelog when you start walking, driving or sit still. It also helps the sleep estimate.",
+            checks.device.activityRecognitionGranted != false, required = false, "Allow", actions.onActivity,
+        ),
     ).filterNotNull()
     val ready = steps.filter { it.required }.all { it.done }
 
