@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 enum class Health { GOOD, ATTENTION, PAUSED }
 
 /** What the user can tap to fix a problem. */
-enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, LOCATION, AUTO_REVOKE, APP_INFO, SAMSUNG_BATTERY, SAMSUNG_BATTERY_DONE, SYNC_NOW, NONE }
+enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, ACTIVITY, LOCATION, AUTO_REVOKE, APP_INFO, NOTIFICATION_ACCESS, SAMSUNG_BATTERY, SAMSUNG_BATTERY_DONE, SYNC_NOW, NONE }
 
 data class Problem(
     val emoji: String,
@@ -85,6 +85,7 @@ private val sourceSpecs = listOf(
     SourceSpec(EventType.APP_USAGE.wire, "📱", "Screen time", Duration.ofHours(24), "Counted in 30-minute blocks"),
     SourceSpec(EventType.UNLOCK.wire, "🔓", "Unlocks", Duration.ofHours(24), "Each time you unlock the phone"),
     SourceSpec(EventType.STEPS.wire, "👟", "Steps", Duration.ofHours(24), "Hourly, from Health Connect"),
+    SourceSpec(EventType.NOTIFICATIONS.wire, "🔔", "Notifications", Duration.ofHours(24), "How many arrive, per app"),
     SourceSpec(EventType.ACTIVITY.wire, "🚶", "Movement", Duration.ofHours(24), "Walking, driving, still"),
     SourceSpec(listOf(EventType.GEOFENCE.wire, EventType.STAY.wire), "📍", "Places", Duration.ofDays(3), "Arrivals, departures and longer stops"),
     SourceSpec(EventType.CHECKIN.wire, "🌙", "Evening check-in", Duration.ofHours(48), "Once a day, at 21:30"),
@@ -135,6 +136,9 @@ fun buildStatusUi(
             add(Problem("📍", "Places are off", "Allow location so Lifelog can count time at home, work and the gym.", Fix.LOCATION, "Allow"))
         } else if (device.backgroundLocationGranted == false) {
             add(Problem("📍", "Location only while using the app", "Choose \"Allow all the time\" so arrivals are noticed in the background.", Fix.LOCATION, "Allow"))
+        }
+        if (device.notificationListenerGranted == false) {
+            add(Problem("🔔", "Notification counts are off", "Allow notification access so Lifelog can count them. It never reads what they say.", Fix.NOTIFICATION_ACCESS, "Allow"))
         }
         if (!notificationsAllowed) {
             add(Problem("🔔", "Reminders are off", "You won't get the 21:30 check-in nudge.", Fix.NOTIFICATIONS, "Turn on"))

@@ -5,6 +5,7 @@ import android.content.Context
 import android.app.usage.UsageStatsManager
 import android.os.BatteryManager
 import android.os.Build
+import androidx.core.app.NotificationManagerCompat
 import android.os.PowerManager
 import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,6 +31,7 @@ data class DeviceStatus(
     /** Android put the app in the "restricted" standby bucket: background work barely runs. */
     val standbyRestricted: Boolean? = null,
     val isSamsung: Boolean = false,
+    val notificationListenerGranted: Boolean? = null,
 )
 
 interface DeviceStatusSource {
@@ -65,6 +67,7 @@ class AndroidDeviceStatusSource @Inject constructor(
             standbyRestricted = context.getSystemService(UsageStatsManager::class.java).appStandbyBucket >=
                 UsageStatsManager.STANDBY_BUCKET_RESTRICTED,
             isSamsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true),
+            notificationListenerGranted = context.packageName in NotificationManagerCompat.getEnabledListenerPackages(context),
         )
     }
 }

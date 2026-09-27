@@ -11,6 +11,7 @@ enum class EventType(val wire: String) {
     SCREEN("screen"),
     GEOFENCE("geofence"),
     STAY("stay"),
+    NOTIFICATIONS("notifications"),
     ;
 
     companion object {

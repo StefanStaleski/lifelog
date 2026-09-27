@@ -72,7 +72,9 @@ export default async function TodayPage() {
           value={duration(row?.screen_time_min ?? 0)}
           sub={
             <>
-              {count(row?.unlocks ?? 0)} unlocks · usual day {duration(usual("screen_time_min"))}
+              {count(row?.unlocks ?? 0)} unlocks
+              {row?.notifications != null && <> · {count(row.notifications)} notifications</>} ·
+              usual day {duration(usual("screen_time_min"))}
             </>
           }
         >

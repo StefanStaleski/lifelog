@@ -88,3 +88,11 @@ data class GeofencePayload(
 /** A 15+ minute stay outside named places; coordinates rounded to 3 decimals (~100 m). */
 @Serializable
 data class StayPayload(val lat: Double, val lng: Double)
+
+/** How many notifications one app posted in one finished UTC hour. */
+@Serializable
+data class NotificationsPayload(
+    @SerialName("package") val packageName: String,
+    @SerialName("app_label") val appLabel: String,
+    val count: Int,
+)

@@ -43,6 +43,20 @@
       "when": 1790500958815,
       "tag": "20260927092238_sleep_and_jobs",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790506933387,
+      "tag": "20260927110213_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790506958376,
+      "tag": "20260927110238_notifications_processing",
+      "breakpoints": true
     }
   ]
 }

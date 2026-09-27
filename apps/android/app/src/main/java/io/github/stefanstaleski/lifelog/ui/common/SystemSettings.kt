@@ -25,6 +25,15 @@ object SystemSettings {
         appDetails(context),
     )
 
+    /** Notification access, opened on Lifelog's own switch where the system supports it. */
+    fun openNotificationAccess(context: Context) = context.startFirst(
+        Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).putExtra(
+            Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+            ComponentName(context, "io.github.stefanstaleski.lifelog.collectors.notifications.LifelogNotificationListener").flattenToString(),
+        ),
+        Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS),
+    )
+
     /** The app's "Remove permissions if app is unused" switch (Android 11+). */
     fun openAutoRevoke(context: Context) = context.startFirst(
         Intent(Intent.ACTION_AUTO_REVOKE_PERMISSIONS, Uri.fromParts("package", context.packageName, null)),

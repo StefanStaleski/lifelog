@@ -104,6 +104,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                 onHealthConnect = requestHealthConnect,
                 onActivity = requestActivity,
                 onLocation = requestLocation,
+                onNotificationAccess = { SystemSettings.openNotificationAccess(context) },
                 onAppInfo = { SystemSettings.openAppInfo(context) },
                 onFinish = main::finishOnboarding,
             ),
@@ -126,6 +127,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                                 Fix.ACTIVITY -> requestActivity()
                                 Fix.LOCATION -> requestLocation()
                                 Fix.AUTO_REVOKE -> SystemSettings.openAutoRevoke(context)
+                                Fix.NOTIFICATION_ACCESS -> SystemSettings.openNotificationAccess(context)
                                 Fix.APP_INFO -> SystemSettings.openAppInfo(context)
                                 Fix.SAMSUNG_BATTERY -> SystemSettings.openSamsungBattery(context)
                                 Fix.SAMSUNG_BATTERY_DONE -> status.confirmSamsungBattery()
