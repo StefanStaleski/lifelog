@@ -51,6 +51,7 @@ android {
 dependencies {
     implementation(project(":core:data"))
     implementation(project(":sync"))
+    implementation(project(":core:network"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
