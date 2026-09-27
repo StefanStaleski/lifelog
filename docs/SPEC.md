@@ -1,6 +1,6 @@
 # Life Tracker: Android App Build Spec
 
-Last updated: Sep 27, 2026
+Last updated: Sep 27, 2026 (Phase 1 built; see "Phase 1 as built")
 
 ## Overview
 
@@ -78,7 +78,7 @@ Ten sources, all available on a sideloaded Android app without a wearable. Heart
 
 | Source | Android API | Permission | Captured | Frequency |
 | --- | --- | --- | --- | --- |
-| App usage and screen time | UsageStatsManager (queryEvents) | PACKAGE_USAGE_STATS (special access) | Foreground time per app, unlock count, first and last use | Every 30 min |
+| App usage and screen time | UsageStatsManager (queryEvents) | PACKAGE_USAGE_STATS (special access) | Foreground time per app per 30-min window, launches; unlocks from KEYGUARD_HIDDEN events | Every 30 min |
 | Screen and charging events | BroadcastReceiver: SCREEN_ON/OFF, USER_PRESENT, POWER_CONNECTED/DISCONNECTED | None | Timestamps, used for sleep estimate | Live, while foreground service runs |
 | Steps and distance | Health Connect (StepsRecord, DistanceRecord) | Health Connect read permissions | Steps and distance per hour | Every hour |
 | Movement type | Activity Recognition Transition API | ACTIVITY_RECOGNITION | Walking, running, cycling, in vehicle, still | Live transitions |
@@ -160,13 +160,14 @@ The API lives in the Next.js app on Vercel as route handlers under `/api/v1`: a 
 | Method | Path | Used by | Purpose |
 | --- | --- | --- | --- |
 | POST | `/v1/events/batch` | Phone | Up to 500 events, gzip JSON; returns accepted and duplicate counts |
-| POST | `/v1/checkins` | Phone | Upsert the day's check-in |
+| ~~POST~~ | ~~`/v1/checkins`~~ | — | Not built: check-ins travel as `checkin` events in `/v1/events/batch` (local-first); the processor upserts by date |
 | GET | `/v1/config` | Phone | Places (geofences), bank parser settings, collection intervals |
 | GET | `/v1/summary?from&to` | Dashboard | Rows of `daily_summary` |
 | GET | `/v1/metrics/:name?from&to&bucket` | Dashboard | One metric as a series (day, week, month) |
 | GET | `/v1/correlations?x&y&from&to` | Dashboard | Pearson r, sample size and the paired values |
 | GET, POST, PATCH | `/v1/places` | Dashboard | Manage named places |
-| GET | `/v1/health` | Dashboard, MCP | Last event per source, errors |
+| GET | `/v1/health` | Phone, dashboard, MCP | Last event per source, errors, staleness |
+| GET | `/v1/gate?days=7` | You (`pnpm gate`) | Phase-gate report: heartbeat gaps over 4 h, per-day data, check-ins |
 
 **Processing.** The batch endpoint connects through Supabase's connection pooler (transaction mode), inserts raw events in one transaction and processes them into the typed tables inline. A 500-event batch finishes well within a Vercel function's time limit, so no job queue is needed.
 
@@ -223,6 +224,20 @@ This dataset describes where you are, who you talk to and what you spend, so tre
 - **MCP scope:** read-only tools that return aggregates; no tool returns raw call or SMS rows.
 - **Secrets:** tokens and keys in Vercel and Supabase environment settings or git-ignored `.env.local` files; never commit real bank samples, use anonymised fixtures.
 - **Kill switch:** a "pause collection" toggle in the app and a "delete date range" action in the dashboard.
+
+## Phase 1 as built
+
+Changes and decisions made while building Phase 1 (the rest of this spec still applies):
+
+- **Heartbeat event.** Every collection run writes a `heartbeat` (app version, pending count, paused, usage access, battery optimisation). It is the liveness signal for `source_health` and the gate, and carries the permission status that onboarding and the status screen also show.
+- **Check-ins are events.** Saved to Room first and uploaded in the normal batch; the latest submission per local date wins. Before 04:00 a check-in counts for the previous evening. The reminder is an inexact alarm at ~21:30 (no exact-alarm permission) with quick mood buttons that open the screen prefilled.
+- **Unlocks come from UsageStats** (`KEYGUARD_HIDDEN`), polled with screen time. The foreground service with screen/charging receivers moves to Phase 2 (sleep).
+- **Screen time windows.** One `app_usage` event per app per 30-min UTC window, only for complete windows; an app's time is the union of its activities' intervals; launcher and system UI excluded. Event ids are name-based UUIDs, so re-collection never double counts.
+- **Processing in SQL.** `process_events(ids)` (called inside the ingest transaction) derives `unlocks`, `app_usage`, `checkins`, heartbeat status and `daily_summary`; the nightly job can reuse it to reprocess history.
+- **Security.** Besides RLS without policies, all table and function privileges are revoked from `anon`/`authenticated` (checked by pgTAP tests).
+- **Wire contract** in `packages/shared` (zod) with JSON fixtures that both the TypeScript and Kotlin tests run against.
+- **Gate definition.** "No gaps" means no heartbeat silence over 4 h (Doze may delay work overnight; usage data is backfilled) and screen time or unlocks on every finished day. Missing check-ins are reported, not failing. Check with `pnpm gate`.
+- **Deploy.** Vercel project `staleski-dev/lifelog`, https://lifelog-opal-two.vercel.app. Supabase org "Lifelog"; the cloud project waits for a free-tier slot (limit of 2 active projects), then `scripts/setup-supabase.sh` finishes setup.
 
 ## Build phases
 
