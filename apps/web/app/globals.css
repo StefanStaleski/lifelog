@@ -149,3 +149,16 @@ body::after {
     top: 100%;
   }
 }
+
+.hud-map .leaflet-tooltip {
+  @apply rounded-md border border-accent/40 bg-stone-950/90 px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] text-accent uppercase shadow-none;
+}
+.hud-map .leaflet-tooltip-top::before {
+  border-top-color: rgb(63 208 224 / 0.4);
+}
+.hud-map .leaflet-bar a {
+  @apply border-accent/20 bg-stone-900 text-accent;
+}
+.hud-map .leaflet-bar a:hover {
+  @apply bg-stone-800;
+}

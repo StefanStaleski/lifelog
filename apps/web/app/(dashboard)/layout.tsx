@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-10 border-b border-accent/15 bg-stone-950/85 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
           <span className="flex items-center gap-2 font-mono text-sm tracking-[0.25em] text-stone-100 uppercase">
             <span
               className="hud-blink size-2 rounded-full bg-accent shadow-[0_0_10px] shadow-accent"
@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 pt-6 pb-28 sm:pb-12">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 pt-6 pb-28 sm:pb-12">{children}</main>
       <BottomNav />
     </div>
   );

@@ -67,7 +67,7 @@ export function Portrait360({
   return (
     <div
       ref={box}
-      className={`group relative aspect-[3/4] w-full touch-pan-y overflow-hidden rounded-xl bg-stone-950 select-none ${frames > 1 ? "cursor-grab active:cursor-grabbing" : ""} ${className}`}
+      className={`group @container relative aspect-[3/4] w-full touch-pan-y overflow-hidden rounded-xl bg-stone-950 select-none ${frames > 1 ? "cursor-grab active:cursor-grabbing" : ""} ${className}`}
       style={{ perspective: 900 }}
       onPointerDown={onDown}
       onPointerMove={onMove}
@@ -105,8 +105,10 @@ export function Portrait360({
         <span className="absolute bottom-0 left-0 size-5 border-b-2 border-l-2 border-accent/70" />
         <span className="absolute right-0 bottom-0 size-5 border-r-2 border-b-2 border-accent/70" />
       </div>
-      <div className="pointer-events-none absolute inset-x-6 bottom-5 flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-accent/90 uppercase">
-        <span>{frames > 1 ? "360° · drag to turn" : "Subject"}</span>
+      <div className="pointer-events-none absolute inset-x-6 bottom-5 flex items-center justify-end gap-2 @[200px]:justify-between font-mono text-[10px] tracking-[0.2em] text-accent/90 uppercase">
+        <span className="hidden @[200px]:inline">
+          {frames > 1 ? "360° · drag to turn" : "Subject"}
+        </span>
         {frames > 1 && (
           <span>
             {String(idx + 1).padStart(2, "0")}/{String(frames).padStart(2, "0")}
