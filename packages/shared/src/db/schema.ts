@@ -231,3 +231,14 @@ export const contextDaily = pgTable("context_daily", {
   meetingMinutes: integer("meeting_minutes"),
   updatedAt: tstz("updated_at").notNull().defaultNow(),
 }).enableRLS();
+
+/** Spots the owner said aren't a place ("Not a place" on a suggestion); rounded like stays. */
+export const dismissedSuggestions = pgTable(
+  "dismissed_suggestions",
+  {
+    lat: doublePrecision("lat").notNull(),
+    lng: doublePrecision("lng").notNull(),
+    createdAt: tstz("created_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.lat, t.lng] })],
+).enableRLS();

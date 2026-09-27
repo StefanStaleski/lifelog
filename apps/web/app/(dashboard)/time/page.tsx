@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import { duration } from "@/lib/format";
 import { addDays, todayLocal } from "@/lib/metrics";
 import { listPlaces } from "@/lib/places";
+import { getSuggestions } from "@/lib/suggestions";
 import { getTimeBreakdown, PLACE_SERIES } from "@/lib/time";
 
 export default async function TimePage({
@@ -19,7 +20,11 @@ export default async function TimePage({
   const end = addDays(todayLocal(), -1);
   const from = addDays(end, -(range - 1));
   const db = getDb();
-  const [t, places] = await Promise.all([getTimeBreakdown(db, from, end), listPlaces(db)]);
+  const [t, places, suggestions] = await Promise.all([
+    getTimeBreakdown(db, from, end),
+    listPlaces(db),
+    getSuggestions(db),
+  ]);
   const tracked = t.placeAverages.some((p) => p.minPerDay > 0);
   const maxCat = Math.max(1, ...t.categories.map((c) => c.minPerDay));
   const maxApp = Math.max(1, ...t.apps.map((a) => a.minPerDay));
@@ -151,7 +156,7 @@ export default async function TimePage({
       </div>
 
       <Card title="Your places">
-        <PlacesEditor places={places} />
+        <PlacesEditor places={places} suggestions={suggestions} />
       </Card>
     </div>
   );

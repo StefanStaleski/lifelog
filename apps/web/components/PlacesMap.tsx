@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect } from "react";
 import { Circle, MapContainer, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
 import type { PlaceDto } from "@/lib/places";
+import type { Suggestion } from "@/lib/suggestions";
 
 const KIND_COLOR: Record<string, string> = {
   home: "#2a78d6",
@@ -28,17 +29,20 @@ function FlyTo({ to }: { to: [number, number] | null }) {
 /** OpenStreetMap with every place as a circle of its geofence radius; tap to drop the draft pin. */
 export default function PlacesMap({
   places,
+  suggestions = [],
   draft,
   focus,
   onPick,
 }: {
   places: PlaceDto[];
+  suggestions?: Suggestion[];
   draft: { lat: number; lng: number; radius_m: number; kind: string } | null;
   focus: [number, number] | null;
   onPick: (lat: number, lng: number) => void;
 }) {
   const active = places.filter((p) => !p.archived);
-  const center: [number, number] = active[0] ? [active[0].lat, active[0].lng] : [41.9981, 21.4254]; // Skopje
+  const first = active[0] ?? suggestions[0];
+  const center: [number, number] = first ? [first.lat, first.lng] : [41.9981, 21.4254]; // Skopje
   return (
     <MapContainer
       center={center}
@@ -61,6 +65,16 @@ export default function PlacesMap({
           <Tooltip permanent direction="top">
             {p.name}
           </Tooltip>
+        </Circle>
+      ))}
+      {suggestions.map((s) => (
+        <Circle
+          key={`${s.lat},${s.lng}`}
+          center={[s.lat, s.lng]}
+          radius={s.radius_m}
+          pathOptions={{ color: "#78716c", weight: 2, dashArray: "4 6", fillOpacity: 0.08 }}
+        >
+          <Tooltip direction="top">Suggested</Tooltip>
         </Circle>
       ))}
       {draft && (

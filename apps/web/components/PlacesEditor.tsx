@@ -2,8 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { useState, useTransition } from "react";
-import { savePlace, setArchived } from "@/app/(dashboard)/time/actions";
+import { dismissSuggestion, savePlace, setArchived } from "@/app/(dashboard)/time/actions";
 import type { PlaceDto } from "@/lib/places";
+import type { Suggestion } from "@/lib/suggestions";
 
 // Leaflet touches `window`, so the map only renders in the browser.
 const PlacesMap = dynamic(() => import("./PlacesMap"), {
@@ -29,7 +30,20 @@ type Draft = {
   radius_m: number;
 };
 
-export function PlacesEditor({ places }: { places: PlaceDto[] }) {
+const SUGGESTION_TITLE: Record<Suggestion["kind"], string> = {
+  home: "🏠 Looks like home",
+  work: "💼 Looks like work",
+  other: "📍 A place you go often",
+};
+const DEFAULT_NAME: Record<Suggestion["kind"], string> = { home: "Home", work: "Work", other: "" };
+
+export function PlacesEditor({
+  places,
+  suggestions = [],
+}: {
+  places: PlaceDto[];
+  suggestions?: Suggestion[];
+}) {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [focus, setFocus] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +85,55 @@ export function PlacesEditor({ places }: { places: PlaceDto[] }) {
 
   return (
     <div className="space-y-4">
-      <PlacesMap places={places} draft={draft} focus={focus} onPick={pick} />
+      {suggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Suggested for you</p>
+          <ul className="space-y-2">
+            {suggestions.map((s) => (
+              <li
+                key={`${s.lat},${s.lng}`}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-stone-50 p-3 dark:bg-stone-800/60"
+              >
+                <button className="text-left" onClick={() => setFocus([s.lat, s.lng])}>
+                  <span className="block font-medium">{SUGGESTION_TITLE[s.kind]}</span>
+                  <span className="text-sm text-stone-500 dark:text-stone-400">{s.why}</span>
+                </button>
+                <span className="flex gap-2">
+                  <button
+                    onClick={() => start(async () => void (await dismissSuggestion(s.lat, s.lng)))}
+                    className="rounded-full px-3 py-1.5 text-sm text-stone-500 hover:bg-stone-200 dark:hover:bg-stone-700"
+                  >
+                    Not a place
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDraft({
+                        id: null,
+                        name: DEFAULT_NAME[s.kind],
+                        kind: s.kind,
+                        lat: s.lat,
+                        lng: s.lng,
+                        radius_m: s.radius_m,
+                      });
+                      setFocus([s.lat, s.lng]);
+                    }}
+                    className="rounded-full bg-stone-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-stone-100 dark:text-stone-900"
+                  >
+                    {s.kind === "other" ? "Name it" : `Add as ${DEFAULT_NAME[s.kind]}`}
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <PlacesMap
+        places={places}
+        suggestions={suggestions}
+        draft={draft}
+        focus={focus}
+        onPick={pick}
+      />
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="text-stone-500 dark:text-stone-400">Tap the map to place a pin, or</span>
         <button
@@ -143,7 +205,8 @@ export function PlacesEditor({ places }: { places: PlaceDto[] }) {
 
       {active.length === 0 && !draft ? (
         <p className="text-sm text-stone-500 dark:text-stone-400">
-          No places yet. Add home first, then work and the gym.
+          No places yet. Add home first, then work and the gym. Spots where you spend time also show
+          up here as suggestions after a few days.
         </p>
       ) : (
         <ul className="divide-y divide-stone-100 dark:divide-stone-800">

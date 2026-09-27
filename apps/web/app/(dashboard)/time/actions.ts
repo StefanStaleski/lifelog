@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { dismissedSuggestions } from "@lifelog/shared/db";
+import { z } from "zod";
 import { getDb } from "@/lib/db";
 import { createPlace, PlaceInputSchema, PlacePatchSchema, updatePlace } from "@/lib/places";
 import { getOwner } from "@/lib/supabase/server";
@@ -31,6 +33,22 @@ export async function setArchived(id: string, archived: boolean): Promise<Action
   const denied = await owner();
   if (denied) return denied;
   await updatePlace(getDb(), id, { archived });
+  revalidatePath("/time");
+  return { ok: true };
+}
+
+/** "Not a place": stop suggesting this spot. */
+export async function dismissSuggestion(lat: number, lng: number): Promise<ActionResult> {
+  const denied = await owner();
+  if (denied) return denied;
+  const coords = z
+    .object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) })
+    .safeParse({ lat, lng });
+  if (!coords.success) return { ok: false, error: "Invalid spot." };
+  await getDb()
+    .insert(dismissedSuggestions)
+    .values({ lat: Math.round(lat * 1000) / 1000, lng: Math.round(lng * 1000) / 1000 })
+    .onConflictDoNothing();
   revalidatePath("/time");
   return { ok: true };
 }
