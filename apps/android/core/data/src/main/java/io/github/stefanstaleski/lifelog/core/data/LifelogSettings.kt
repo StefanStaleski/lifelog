@@ -36,6 +36,7 @@ class LifelogSettings @Inject constructor(private val store: DataStore<Preferenc
         val lastCollect = longPreferencesKey("collect_last_at")
         val lastCollectError = stringPreferencesKey("collect_last_error")
         val lastUploadCount = intPreferencesKey("sync_last_upload_count")
+        val onboardingDone = booleanPreferencesKey("onboarding_done")
         fun watermark(collector: String) = longPreferencesKey("watermark_$collector")
     }
 
@@ -43,6 +44,12 @@ class LifelogSettings @Inject constructor(private val store: DataStore<Preferenc
 
     suspend fun setCollectionPaused(paused: Boolean) {
         store.edit { it[Keys.paused] = paused }
+    }
+
+    val onboardingDone: Flow<Boolean> = store.data.map { it[Keys.onboardingDone] ?: false }
+
+    suspend fun setOnboardingDone() {
+        store.edit { it[Keys.onboardingDone] = true }
     }
 
     /** Collected up to (exclusive) this instant; null before the first run. */
