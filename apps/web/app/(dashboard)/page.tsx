@@ -16,6 +16,7 @@ import {
 } from "@/lib/format";
 import { METRICS } from "@/lib/metrics";
 import { getToday } from "@/lib/today";
+import { describeWeather } from "@/lib/weather";
 
 export default async function TodayPage() {
   const t = await getToday(getDb());
@@ -44,6 +45,15 @@ export default async function TodayPage() {
       <header>
         <p className="text-stone-500 dark:text-stone-400">{longDate(t.today)}</p>
         <h1 className="text-3xl font-semibold tracking-tight">{greeting(t.now)} 👋</h1>
+        {t.weather && t.weather.tempMax != null && (
+          <p className="mt-1 text-stone-600 dark:text-stone-300">
+            {describeWeather(t.weather.weatherCode).emoji}{" "}
+            {describeWeather(t.weather.weatherCode).text}
+            {" · "}
+            {Math.round(t.weather.tempMax)}° / {Math.round(t.weather.tempMin ?? t.weather.tempMax)}°
+            {t.weather.precipMm ? ` · ${t.weather.precipMm.toFixed(1)} mm rain` : ""}
+          </p>
+        )}
       </header>
 
       <HealthStrip health={t.health} now={t.now} />
