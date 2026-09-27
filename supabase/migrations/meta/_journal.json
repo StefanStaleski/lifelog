@@ -71,6 +71,13 @@
       "when": 1790518540609,
       "tag": "20260927141540_dismissed_suggestions",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790520637869,
+      "tag": "20260927145037_portrait",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  customType,
   bigint,
   boolean,
   check,
@@ -241,4 +242,18 @@ export const dismissedSuggestions = pgTable(
     createdAt: tstz("created_at").notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.lat, t.lng] })],
+).enableRLS();
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => "bytea" });
+
+/** The owner's portrait: 1 photo, or a turn-around set (frame 0..n-1) for the 360° view. Private. */
+export const portraitFrames = pgTable(
+  "portrait_frames",
+  {
+    idx: smallint("idx").primaryKey(),
+    mime: text("mime").notNull(),
+    bytes: bytea("bytes").notNull(),
+    updatedAt: tstz("updated_at").notNull().defaultNow(),
+  },
+  (t) => [check("portrait_frames_idx", sql`${t.idx} between 0 and 35`)],
 ).enableRLS();
