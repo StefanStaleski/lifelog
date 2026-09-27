@@ -14,7 +14,8 @@
     "db:start": "supabase db start",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:generate": "pnpm --filter @lifelog/shared db:generate"
+    "db:generate": "pnpm --filter @lifelog/shared db:generate",
+    "gate": "node scripts/gate.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
