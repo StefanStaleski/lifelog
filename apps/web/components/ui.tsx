@@ -14,7 +14,7 @@ export function Card({
 }) {
   return (
     <section
-      className={`rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200/70 sm:p-6 dark:bg-stone-900 dark:ring-stone-800 ${className}`}
+      className={`min-w-0 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200/70 sm:p-6 dark:bg-stone-900 dark:ring-stone-800 ${className}`}
     >
       {(title || action) && (
         <div className="mb-4 flex items-center justify-between gap-3">
