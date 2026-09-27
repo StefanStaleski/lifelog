@@ -27,6 +27,10 @@ describe("EventSchema fixtures", () => {
     "unlock-id-not-uuid.json": "id",
     "unlock-local-offset.json": "occurred_at",
     "unlock-payload-text.json": "payload",
+    "steps-not-whole-hour.json": "ended_at",
+    "stay-too-short.json": "ended_at",
+    "stay-precise-coordinates.json": "payload.lat",
+    "activity-unknown-kind.json": "payload.activity",
   };
 
   it.each(load("invalid"))("rejects invalid/%s", (name, json) => {

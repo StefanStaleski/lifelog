@@ -6,6 +6,11 @@ enum class EventType(val wire: String) {
     UNLOCK("unlock"),
     CHECKIN("checkin"),
     HEARTBEAT("heartbeat"),
+    STEPS("steps"),
+    ACTIVITY("activity"),
+    SCREEN("screen"),
+    GEOFENCE("geofence"),
+    STAY("stay"),
     ;
 
     companion object {

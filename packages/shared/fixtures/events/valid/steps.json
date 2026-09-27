@@ -1,0 +1,8 @@
+{
+  "id": "6e63d3a5-e0fe-4c11-a36d-594a2c70ab80",
+  "type": "steps",
+  "occurred_at": "2026-09-27T07:00:00Z",
+  "ended_at": "2026-09-27T08:00:00Z",
+  "device_id": "s24",
+  "payload": { "steps": 1834, "distance_m": 1402 }
+}

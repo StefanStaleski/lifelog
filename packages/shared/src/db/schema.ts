@@ -1,13 +1,16 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   check,
   date,
+  doublePrecision,
   index,
   integer,
   jsonb,
   pgTable,
   primaryKey,
+  real,
   smallint,
   text,
   timestamp,
@@ -110,5 +113,95 @@ export const dailySummary = pgTable("daily_summary", {
   mood: smallint("mood"),
   energy: smallint("energy"),
   focus: smallint("focus"),
+  steps: integer("steps"),
+  distanceM: integer("distance_m"),
+  sleepMin: integer("sleep_min"),
+  sleepConfidence: real("sleep_confidence"),
+  homeMin: integer("home_min"),
+  workMin: integer("work_min"),
+  gymMin: integer("gym_min"),
+  otherPlacesMin: integer("other_places_min"),
   updatedAt: tstz("updated_at").notNull().defaultNow(),
+}).enableRLS();
+
+export const PLACE_KINDS = ["home", "work", "gym", "other"] as const;
+
+/** Named places, defined in the dashboard and geofenced by the phone. */
+export const places = pgTable(
+  "places",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    kind: text("kind", { enum: PLACE_KINDS }).notNull(),
+    lat: doublePrecision("lat").notNull(),
+    lng: doublePrecision("lng").notNull(),
+    radiusM: integer("radius_m").notNull(),
+    createdAt: tstz("created_at").notNull().defaultNow(),
+    /** Archived places stop being geofenced but keep their visits. */
+    archivedAt: tstz("archived_at"),
+  },
+  (t) => [
+    check("places_kind", sql`${t.kind} in ('home', 'work', 'gym', 'other')`),
+    check("places_radius", sql`${t.radiusM} between 50 and 2000`),
+  ],
+).enableRLS();
+
+/** Time spent at a named place; left_at is null while still there. */
+export const visits = pgTable(
+  "visits",
+  {
+    placeId: uuid("place_id").notNull(),
+    arrivedAt: tstz("arrived_at").notNull(),
+    leftAt: tstz("left_at"),
+  },
+  (t) => [primaryKey({ columns: [t.placeId, t.arrivedAt] })],
+).enableRLS();
+
+/** Stays of 15+ minutes outside named places (coordinates rounded to ~100 m). */
+export const locationStays = pgTable(
+  "location_stays",
+  {
+    eventId: uuid("event_id").primaryKey(),
+    arrivedAt: tstz("arrived_at").notNull(),
+    leftAt: tstz("left_at").notNull(),
+    lat: doublePrecision("lat").notNull(),
+    lng: doublePrecision("lng").notNull(),
+  },
+  (t) => [index("location_stays_arrived_at_idx").on(t.arrivedAt)],
+).enableRLS();
+
+export const stepsHourly = pgTable("steps_hourly", {
+  hour: tstz("hour").primaryKey(),
+  steps: integer("steps").notNull(),
+  distanceM: integer("distance_m").notNull(),
+}).enableRLS();
+
+/** Continuous stretches of one activity, rebuilt from Activity Recognition transitions. */
+export const activitySegments = pgTable("activity_segments", {
+  startedAt: tstz("started_at").primaryKey(),
+  endedAt: tstz("ended_at"),
+  kind: text("kind").notNull(),
+}).enableRLS();
+
+export const screenEvents = pgTable(
+  "screen_events",
+  {
+    eventId: uuid("event_id").primaryKey(),
+    occurredAt: tstz("occurred_at").notNull(),
+    state: text("state").notNull(),
+  },
+  (t) => [index("screen_events_occurred_at_idx").on(t.occurredAt)],
+).enableRLS();
+
+/** Night of sleep ending on `date` (local wake-up date). */
+export const sleepEstimates = pgTable("sleep_estimates", {
+  date: date("date", { mode: "string" }).primaryKey(),
+  sleepStart: tstz("sleep_start").notNull(),
+  wakeAt: tstz("wake_at").notNull(),
+  durationMin: integer("duration_min").notNull(),
+  /** 0–1 */
+  confidence: real("confidence").notNull(),
+  /** Set when the owner corrected the estimate (never overwritten by the job). */
+  corrected: boolean("corrected").notNull().default(false),
+  computedAt: tstz("computed_at").notNull().defaultNow(),
 }).enableRLS();

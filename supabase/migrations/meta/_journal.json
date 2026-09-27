@@ -22,6 +22,20 @@
       "when": 1790466637352,
       "tag": "20260926235037_process_events",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790500140184,
+      "tag": "20260927090900_phase2_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790500210054,
+      "tag": "20260927091010_phase2_processing",
+      "breakpoints": true
     }
   ]
 }

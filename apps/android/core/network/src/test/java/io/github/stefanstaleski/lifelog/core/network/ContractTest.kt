@@ -3,10 +3,15 @@ package io.github.stefanstaleski.lifelog.core.network
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import io.github.stefanstaleski.lifelog.core.data.LifelogJson
+import io.github.stefanstaleski.lifelog.core.data.model.ActivityPayload
 import io.github.stefanstaleski.lifelog.core.data.model.AppUsagePayload
 import io.github.stefanstaleski.lifelog.core.data.model.CheckinPayload
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
+import io.github.stefanstaleski.lifelog.core.data.model.GeofencePayload
 import io.github.stefanstaleski.lifelog.core.data.model.HeartbeatPayload
+import io.github.stefanstaleski.lifelog.core.data.model.ScreenPayload
+import io.github.stefanstaleski.lifelog.core.data.model.StayPayload
+import io.github.stefanstaleski.lifelog.core.data.model.StepsPayload
 import io.github.stefanstaleski.lifelog.core.data.model.UnlockPayload
 import io.github.stefanstaleski.lifelog.core.network.model.ConfigResponse
 import io.github.stefanstaleski.lifelog.core.network.model.HealthResponse
@@ -27,6 +32,11 @@ class ContractTest {
         EventType.UNLOCK -> serializer<UnlockPayload>()
         EventType.CHECKIN -> serializer<CheckinPayload>()
         EventType.HEARTBEAT -> serializer<HeartbeatPayload>()
+        EventType.STEPS -> serializer<StepsPayload>()
+        EventType.ACTIVITY -> serializer<ActivityPayload>()
+        EventType.SCREEN -> serializer<ScreenPayload>()
+        EventType.GEOFENCE -> serializer<GeofencePayload>()
+        EventType.STAY -> serializer<StayPayload>()
         null -> error("unknown event type $type")
     }
 
