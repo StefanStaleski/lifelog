@@ -52,7 +52,11 @@ export const STALE_AFTER_MIN: Record<string, number> = {
   heartbeat: 120,
   unlock: 24 * 60,
   app_usage: 24 * 60,
+  screen: 24 * 60,
+  steps: 24 * 60,
+  activity: 24 * 60,
   checkin: 48 * 60,
+  // geofence / stay: no allowance, a day at home without leaving is normal
 };
 
 /** `GET /api/v1/health` */

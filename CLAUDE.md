@@ -32,6 +32,8 @@ pnpm typecheck
 pnpm test                             # web tests need the local DB: run `pnpm db:start` first
 pnpm build
 pnpm --filter web dev                 # local dashboard + API on :3000
+pnpm --filter web seed                # ~60 days of fake phone data into the LOCAL db (refuses anything else)
+DASHBOARD_DEV_AUTH_BYPASS=1 pnpm --filter web dev   # dashboard without signing in (local dev only)
 
 # Database (Supabase CLI is a dev dependency: `pnpm exec supabase …`)
 pnpm db:start                         # local Postgres only, on port 55322 (ports are 553xx to avoid other local stacks)
