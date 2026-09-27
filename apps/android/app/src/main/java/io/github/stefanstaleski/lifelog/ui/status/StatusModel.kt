@@ -116,7 +116,9 @@ fun buildStatusUi(
         if (device.autoRevokeExempt == false) {
             add(Problem("🗝️", "Permissions may be removed", "Android removes permissions from apps you don't open. Turn that off for Lifelog.", Fix.AUTO_REVOKE, "Turn off"))
         }
-        if (device.isSamsung && !samsungSleepChecked) {
+        // Samsung only lists apps that are still battery-restricted under "Never sleeping apps";
+        // an unrestricted app (the battery card above) is already covered.
+        if (device.isSamsung && !samsungSleepChecked && !device.batteryOptimizationIgnored) {
             add(
                 Problem(
                     "🛌", "Keep Lifelog awake on Samsung",
