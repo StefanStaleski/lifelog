@@ -1,50 +1,142 @@
 @import "tailwindcss";
 
+/* Always dark: `dark:` utilities apply because <html class="dark">. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --color-good: #1e9e4a;
-  --color-good-soft: #ddf4e4;
-  --color-attention: #c77700;
-  --color-attention-soft: #ffefd2;
-  --color-accent: #3b5bdb;
-  --color-accent-soft: #e5ebff;
+  --font-mono: var(--font-hud-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* The neutral scale, re-tuned to blue-black HUD tones; every page uses it. */
+  --color-stone-50: #eef6f8;
+  --color-stone-100: #dbe8ed;
+  --color-stone-200: #b8cdd5;
+  --color-stone-300: #8fa8b3;
+  --color-stone-400: #6f8894;
+  --color-stone-500: #566d78;
+  --color-stone-600: #3e535d;
+  --color-stone-700: #243a45;
+  --color-stone-800: #142733;
+  --color-stone-900: #0b1720;
+  --color-stone-950: #050b10;
+
+  /* Interface chrome (lines, labels, glow). Data uses the validated --series-* roles below. */
+  --color-accent: #3fd0e0;
+  --color-accent-soft: #0c2c33;
+  --color-good: #4ade80;
+  --color-good-soft: #0d2b1c;
+  --color-attention: #f5b54a;
+  --color-attention-soft: #33250b;
+  --color-alert: #ff6b6b;
 }
 
-/* Chart roles (validated palette: dataviz reference slots 1-4, light on white / dark on stone-900). */
+/* Chart roles: dataviz reference slots 1–4 (dark steps), validated on the panel surface #0b1720. */
 :root {
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
-  --series-4: #eda100;
-  --viz-grid: #e7e5e4;
-  --viz-band: #eeeae6;
-  --viz-text: #78716c;
-  --chart-surface: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-good: #5bd68a;
-    --color-good-soft: #123a21;
-    --color-attention: #ffb84d;
-    --color-attention-soft: #45300a;
-    --color-accent: #9fb4ff;
-    --color-accent-soft: #1d2748;
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --viz-grid: #292524;
-    --viz-band: #2a2624;
-    --viz-text: #a8a29e;
-    --chart-surface: #1c1917;
-  }
-}
-
-:root {
-  color-scheme: light dark;
+  color-scheme: dark;
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --viz-grid: #16303c;
+  --viz-band: #10262f;
+  --viz-text: #6f8894;
+  --chart-surface: #0b1720;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  @apply bg-stone-950 text-stone-100 antialiased;
+  /* faint HUD grid + vignette */
+  background-image:
+    radial-gradient(ellipse at top, rgb(63 208 224 / 0.07), transparent 60%),
+    linear-gradient(rgb(63 208 224 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(63 208 224 / 0.035) 1px, transparent 1px);
+  background-size:
+    100% 100%,
+    32px 32px,
+    32px 32px;
+  background-attachment: fixed;
+}
+
+/* Scanlines over everything, barely visible; off for people who prefer less motion/noise. */
+body::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.018) 0 1px,
+    transparent 1px 3px
+  );
+}
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
+}
+
+@layer components {
+  /* Panel with bracketed corners, the building block of every view. */
+  .hud-panel {
+    @apply relative border border-accent/15 bg-stone-900/80 backdrop-blur-sm;
+    border-radius: 14px;
+    box-shadow:
+      inset 0 1px 0 rgb(63 208 224 / 0.06),
+      0 0 0 1px rgb(0 0 0 / 0.4);
+  }
+  .hud-panel::before,
+  .hud-panel::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: rgb(63 208 224 / 0.6);
+    pointer-events: none;
+  }
+  .hud-panel::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid;
+    border-left: 2px solid;
+    border-top-left-radius: 14px;
+  }
+  .hud-panel::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+    border-bottom-right-radius: 14px;
+  }
+  .hud-label {
+    @apply font-mono text-[11px] tracking-[0.18em] text-accent/80 uppercase;
+  }
+  .hud-glow {
+    text-shadow: 0 0 18px rgb(63 208 224 / 0.35);
+  }
+}
+
+@keyframes hud-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+.hud-blink {
+  animation: hud-blink 1.6s steps(2) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-blink {
+    animation: none;
+  }
+}
+
+/* Leaflet map: darken the tiles to sit in the HUD. */
+.hud-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);
+}
+.hud-map .leaflet-control-attribution {
+  @apply bg-stone-900/80 text-stone-400;
+}
+.hud-map .leaflet-control-attribution a {
+  @apply text-accent;
 }

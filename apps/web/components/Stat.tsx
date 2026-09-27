@@ -35,14 +35,14 @@ export function Stat({
   children?: ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-3 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-stone-200/70 sm:p-6 dark:bg-stone-900 dark:ring-stone-800">
-      <div className="flex items-center gap-2 text-sm font-medium text-stone-500 dark:text-stone-400">
+    <section className="hud-panel flex flex-col gap-3 p-5 sm:p-6">
+      <div className="hud-label flex items-center gap-2">
         <span className="text-lg" aria-hidden>
           {emoji}
         </span>
         {label}
       </div>
-      <div className="text-4xl font-semibold tracking-tight tabular-nums">{value}</div>
+      <div className="hud-glow text-4xl font-semibold tracking-tight tabular-nums">{value}</div>
       {(sub || chip) && (
         <div className="flex flex-wrap items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
           {chip && <Chip tone={chip.tone}>{chip.text}</Chip>}

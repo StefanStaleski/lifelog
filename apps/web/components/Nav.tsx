@@ -23,7 +23,7 @@ export function TopNav() {
           key={item.href}
           href={item.href}
           aria-current={isActive(pathname, item.href) ? "page" : undefined}
-          className="rounded-full px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-200/70 aria-[current=page]:bg-stone-900 aria-[current=page]:text-white dark:text-stone-300 dark:hover:bg-stone-800 dark:aria-[current=page]:bg-stone-100 dark:aria-[current=page]:text-stone-900"
+          className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.18em] text-stone-400 uppercase transition hover:text-stone-100 aria-[current=page]:bg-accent/10 aria-[current=page]:text-accent aria-[current=page]:ring-1 aria-[current=page]:ring-accent/40"
         >
           {item.label}
         </Link>
@@ -37,7 +37,7 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-stone-200 bg-stone-50/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden dark:border-stone-800 dark:bg-stone-950/95"
+      className="fixed inset-x-0 bottom-0 z-10 border-t border-accent/20 bg-stone-950/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
       aria-label="Main"
     >
       <ul className="grid grid-cols-3">
@@ -46,7 +46,7 @@ export function BottomNav() {
             <Link
               href={item.href}
               aria-current={isActive(pathname, item.href) ? "page" : undefined}
-              className="flex flex-col items-center gap-0.5 py-2.5 text-xs font-medium text-stone-500 aria-[current=page]:text-stone-900 dark:text-stone-400 dark:aria-[current=page]:text-white"
+              className="flex flex-col items-center gap-0.5 py-2.5 font-mono text-[10px] tracking-[0.15em] text-stone-500 uppercase aria-[current=page]:text-accent"
             >
               <span className="text-xl leading-none" aria-hidden>
                 {item.icon}

@@ -48,7 +48,7 @@ export default function PlacesMap({
       center={center}
       zoom={14}
       scrollWheelZoom
-      className="h-80 w-full rounded-2xl sm:h-96"
+      className="hud-map h-80 w-full rounded-xl sm:h-96"
       style={{ zIndex: 0 }}
     >
       <TileLayer
