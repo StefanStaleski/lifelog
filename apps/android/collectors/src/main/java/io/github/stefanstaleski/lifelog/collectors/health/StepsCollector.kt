@@ -5,6 +5,7 @@ import io.github.stefanstaleski.lifelog.collectors.PolledCollector
 import io.github.stefanstaleski.lifelog.core.data.NewEvent
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
 import io.github.stefanstaleski.lifelog.core.data.model.StepsPayload
+import android.util.Log
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -18,7 +19,8 @@ import kotlinx.serialization.serializer
  * (the id includes the totals; the server keeps the larger value per hour).
  */
 class StepsCollector @Inject constructor(private val source: StepsSource) : PolledCollector {
-    override val name = "health_connect"
+    // "_v2": a fresh watermark after the first release advanced past an empty Health Connect (S24).
+    override val name = "health_connect_v2"
 
     /** Health Connect allows reading up to 30 days back; a week gives the first charts some history. */
     override val initialLookback: Duration = Duration.ofDays(7)
@@ -31,7 +33,14 @@ class StepsCollector @Inject constructor(private val source: StepsSource) : Poll
         val from = minOf(floorToHour(since), to.minus(RESYNC))
         if (!to.isAfter(from)) return CollectResult(emptyList(), since)
 
-        val events = source.hourly(from, to)
+        val hours = source.hourly(from, to)
+        val withData = hours.filter { it.steps > 0 || it.distanceM >= 1 }
+        Log.i("Lifelog", "health_connect: ${withData.size} hours with data in [$from, $to)")
+        // Nothing at all yet (e.g. Samsung Health hasn't synced into Health Connect): keep the
+        // starting point, so the backfill still happens once data shows up.
+        if (withData.isEmpty()) return CollectResult(emptyList(), since)
+
+        val events = hours
             .filter { Duration.between(it.hourStart, it.hourEnd) == HOUR && (it.steps > 0 || it.distanceM >= 1) }
             .map { h ->
                 val steps = h.steps.coerceAtMost(MAX_STEPS).toInt()

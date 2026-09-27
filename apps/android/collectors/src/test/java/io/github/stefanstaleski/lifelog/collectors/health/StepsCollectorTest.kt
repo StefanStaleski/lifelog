@@ -37,7 +37,19 @@ class StepsCollectorTest {
         assertThat(e.payload).isEqualTo(StepsPayload(1200, 950))
     }
 
+    @Test fun anEmptyHealthConnectKeepsTheWatermarkSoTheBackfillWaits() = runTest {
+        val result = collector.collect(since = h(-168), until = h(0))
+        assertThat(result.events).isEmpty()
+        assertThat(result.watermark).isEqualTo(h(-168))
+
+        source.data = mapOf(h(-100) to (5000L to 3800.0)) // Samsung Health synced a week of history
+        val later = collector.collect(since = h(-168), until = h(1))
+        assertThat(later.events.single().occurredAt).isEqualTo(h(-100))
+        assertThat(later.watermark).isEqualTo(h(1))
+    }
+
     @Test fun rereadsTheLastDayForLateSync() = runTest {
+        source.data = mapOf(h(-3) to (10L to 8.0))
         collector.collect(since = h(0), until = h(1))
         assertThat(source.requests.single()).isEqualTo(h(1).minus(StepsCollector.RESYNC) to h(1))
     }
