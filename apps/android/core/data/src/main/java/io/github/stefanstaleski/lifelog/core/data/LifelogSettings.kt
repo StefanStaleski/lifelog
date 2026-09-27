@@ -40,6 +40,13 @@ class LifelogSettings @Inject constructor(private val store: DataStore<Preferenc
         fun watermark(collector: String) = longPreferencesKey("watermark_$collector")
     }
 
+    /** Small JSON blobs owned by collectors (e.g. known places, a stay in progress). */
+    suspend fun readString(key: String): String? = store.data.first()[stringPreferencesKey("blob_$key")]
+
+    suspend fun writeString(key: String, value: String?) {
+        store.edit { if (value == null) it.remove(stringPreferencesKey("blob_$key")) else it[stringPreferencesKey("blob_$key")] = value }
+    }
+
     val collectionPaused: Flow<Boolean> = store.data.map { it[Keys.paused] ?: false }
 
     suspend fun setCollectionPaused(paused: Boolean) {

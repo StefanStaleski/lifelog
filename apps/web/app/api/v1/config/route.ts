@@ -1,11 +1,12 @@
 import { isDeviceAuthorized } from "@/lib/auth";
 import { getConfig } from "@/lib/config";
+import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export function GET(req: Request) {
+export async function GET(req: Request) {
   if (!isDeviceAuthorized(req)) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
-  return Response.json(getConfig());
+  return Response.json(await getConfig(getDb()));
 }

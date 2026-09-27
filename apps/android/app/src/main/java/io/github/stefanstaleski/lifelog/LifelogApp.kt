@@ -6,6 +6,10 @@ import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import io.github.stefanstaleski.lifelog.checkin.CheckinReminder
 import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
+import io.github.stefanstaleski.lifelog.collectors.places.Geofencer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import io.github.stefanstaleski.lifelog.sync.SyncScheduler
 import javax.inject.Inject
 
@@ -15,6 +19,7 @@ class LifelogApp : Application(), Configuration.Provider {
     @Inject lateinit var syncScheduler: SyncScheduler
     @Inject lateinit var checkinReminder: CheckinReminder
     @Inject lateinit var activityTracker: ActivityTracker
+    @Inject lateinit var geofencer: Geofencer
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
@@ -24,5 +29,6 @@ class LifelogApp : Application(), Configuration.Provider {
         syncScheduler.schedulePeriodic()
         checkinReminder.scheduleNext()
         activityTracker.register()
+        CoroutineScope(Dispatchers.Default).launch { geofencer.registerStored() }
     }
 }

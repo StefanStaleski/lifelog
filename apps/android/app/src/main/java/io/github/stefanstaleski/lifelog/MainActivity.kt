@@ -65,6 +65,26 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
     }
     val requestActivity = { activityPermission.launch(Manifest.permission.ACTIVITY_RECOGNITION) }
 
+    // Location is two steps on Android 11+: "while using" first, then "all the time" in Settings.
+    val backgroundLocation = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        main.onLocationPermissionResult()
+    }
+    val foregroundLocation = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        if (result[Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+            backgroundLocation.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        } else {
+            SystemSettings.openAppInfo(context)
+        }
+        main.onLocationPermissionResult()
+    }
+    val requestLocation = {
+        if (checks.device.locationGranted == true) {
+            backgroundLocation.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        } else {
+            foregroundLocation.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+        }
+    }
+
     val requestNotifications = {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -83,6 +103,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                 onNotifications = requestNotifications,
                 onHealthConnect = requestHealthConnect,
                 onActivity = requestActivity,
+                onLocation = requestLocation,
                 onAppInfo = { SystemSettings.openAppInfo(context) },
                 onFinish = main::finishOnboarding,
             ),
@@ -103,6 +124,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                                 Fix.NOTIFICATIONS -> requestNotifications()
                                 Fix.HEALTH_CONNECT -> requestHealthConnect()
                                 Fix.ACTIVITY -> requestActivity()
+                                Fix.LOCATION -> requestLocation()
                                 Fix.SYNC_NOW -> status.syncNow()
                                 Fix.NONE -> Unit
                             }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
+import io.github.stefanstaleski.lifelog.collectors.places.Geofencer
 import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
 import io.github.stefanstaleski.lifelog.core.data.LifelogSettings
 import io.github.stefanstaleski.lifelog.sync.SyncScheduler
@@ -22,6 +23,7 @@ class MainViewModel @Inject constructor(
     private val scheduler: SyncScheduler,
     private val healthConnect: HealthConnectStepsSource,
     private val activityTracker: ActivityTracker,
+    private val geofencer: Geofencer,
 ) : ViewModel() {
     /** null while loading, to avoid flashing onboarding on start. */
     val onboardingDone: StateFlow<Boolean?> =
@@ -37,6 +39,14 @@ class MainViewModel @Inject constructor(
     fun onActivityPermissionResult() {
         activityTracker.register()
         refreshChecks()
+    }
+
+    /** After either location dialog: geofences need both permissions. */
+    fun onLocationPermissionResult() {
+        viewModelScope.launch {
+            geofencer.registerStored()
+            deviceChecks.refresh()
+        }
     }
 
     /** Health Connect permissions to request (steps, distance, background reading). */

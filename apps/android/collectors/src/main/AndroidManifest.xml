@@ -20,7 +20,15 @@
     <!-- Activity Recognition transitions (still / walking / vehicle ...). -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <!-- Named places (geofences) and stays elsewhere; "all the time" because collection runs in the background. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
     <application>
+        <receiver
+            android:name=".places.GeofenceReceiver"
+            android:exported="false" />
         <receiver
             android:name=".activity.ActivityTransitionReceiver"
             android:exported="false" />

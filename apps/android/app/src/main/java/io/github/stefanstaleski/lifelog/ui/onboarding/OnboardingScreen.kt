@@ -41,6 +41,7 @@ data class OnboardingActions(
     val onNotifications: () -> Unit = {},
     val onHealthConnect: () -> Unit = {},
     val onActivity: () -> Unit = {},
+    val onLocation: () -> Unit = {},
     val onAppInfo: () -> Unit = {},
     val onFinish: () -> Unit = {},
 )
@@ -82,6 +83,16 @@ fun OnboardingScreen(checks: DeviceChecks, actions: OnboardingActions) {
             "🚶", "Walking, driving or still",
             "Lets Android tell Lifelog when you start walking, driving or sit still. It also helps the sleep estimate.",
             checks.device.activityRecognitionGranted != false, required = false, "Allow", actions.onActivity,
+        ),
+        Step(
+            "📍", "Places you go",
+            if (checks.device.locationGranted == true) {
+                "One more tap: choose \"Allow all the time\" so Lifelog notices when you arrive home or at work."
+            } else {
+                "Counts time at home, work and the gym. Only the rough area (about 100 m) of other stops is kept."
+            },
+            checks.device.backgroundLocationGranted != false, required = false,
+            if (checks.device.locationGranted == true) "Allow all the time" else "Allow", actions.onLocation,
         ),
     ).filterNotNull()
     val ready = steps.filter { it.required }.all { it.done }

@@ -24,6 +24,7 @@ class CollectRunner @Inject constructor(
     private val settings: LifelogSettings,
     private val dao: PendingEventDao,
     private val deviceStatus: DeviceStatusSource,
+    private val config: ConfigRefresher,
 ) {
     suspend fun run(): CollectSummary {
         val now = writer.now()
@@ -32,6 +33,14 @@ class CollectRunner @Inject constructor(
         val errors = mutableListOf<String>()
 
         if (!paused) {
+            // Named places for geofences and stays. Offline is normal: just keep the last known ones.
+            try {
+                config.refresh()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.i(TAG, "config refresh failed: ${e.message}")
+            }
             for (collector in collectors.sortedBy { it.name }) {
                 try {
                     val since = settings.watermark(collector.name) ?: now.minus(collector.initialLookback)
@@ -64,6 +73,8 @@ class CollectRunner @Inject constructor(
                 healthConnectGranted = status.healthConnect?.takeIf { it != HealthAccess.NOT_INSTALLED }
                     ?.let { it == HealthAccess.AVAILABLE },
                 activityRecognitionGranted = status.activityRecognitionGranted,
+                locationGranted = status.locationGranted,
+                backgroundLocationGranted = status.backgroundLocationGranted,
             ),
         )
         settings.recordCollect(now, errors)
