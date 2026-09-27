@@ -1,6 +1,10 @@
 package io.github.stefanstaleski.lifelog.core.data.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -29,6 +33,11 @@ object DataModule {
     @Provides
     @Singleton
     fun json(): Json = LifelogJson
+
+    @Provides
+    @Singleton
+    fun settingsStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("settings") }
 
     @Provides
     @Singleton
