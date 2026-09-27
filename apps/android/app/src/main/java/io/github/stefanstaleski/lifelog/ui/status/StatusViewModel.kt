@@ -48,7 +48,7 @@ class StatusViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val today = ticker.map { it.atZone(LocalZone).toLocalDate() }.distinctUntilChanged().flatMapLatest { day ->
         val start = day.atStartOfDay(LocalZone).toInstant().toEpochMilli()
-        dao.observeSince(listOf(EventType.APP_USAGE.wire, EventType.UNLOCK.wire), start)
+        dao.observeSince(listOf(EventType.APP_USAGE.wire, EventType.UNLOCK.wire, EventType.STEPS.wire), start)
             .map { todaySummary(it, day, LocalZone, json) }
     }
 

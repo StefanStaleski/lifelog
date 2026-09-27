@@ -3,6 +3,7 @@ package io.github.stefanstaleski.lifelog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
 import io.github.stefanstaleski.lifelog.core.data.LifelogSettings
 import io.github.stefanstaleski.lifelog.sync.SyncScheduler
 import io.github.stefanstaleski.lifelog.ui.common.DeviceChecks
@@ -18,6 +19,7 @@ class MainViewModel @Inject constructor(
     private val settings: LifelogSettings,
     private val deviceChecks: DeviceChecksRepository,
     private val scheduler: SyncScheduler,
+    private val healthConnect: HealthConnectStepsSource,
 ) : ViewModel() {
     /** null while loading, to avoid flashing onboarding on start. */
     val onboardingDone: StateFlow<Boolean?> =
@@ -25,7 +27,12 @@ class MainViewModel @Inject constructor(
 
     val checks: StateFlow<DeviceChecks> = deviceChecks.checks
 
-    fun refreshChecks() = deviceChecks.refresh()
+    fun refreshChecks() {
+        viewModelScope.launch { deviceChecks.refresh() }
+    }
+
+    /** Health Connect permissions to request (steps, distance, background reading). */
+    fun healthPermissions(): Set<String> = healthConnect.requiredPermissions()
 
     fun finishOnboarding() {
         viewModelScope.launch {

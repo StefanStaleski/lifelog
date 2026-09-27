@@ -7,6 +7,9 @@ import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
 import dagger.multibindings.Multibinds
 import io.github.stefanstaleski.lifelog.collectors.PolledCollector
+import io.github.stefanstaleski.lifelog.collectors.health.HealthConnectStepsSource
+import io.github.stefanstaleski.lifelog.collectors.health.StepsCollector
+import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
 import io.github.stefanstaleski.lifelog.collectors.usage.AndroidAppInfoProvider
 import io.github.stefanstaleski.lifelog.collectors.usage.AndroidUsageEventSource
 import io.github.stefanstaleski.lifelog.collectors.usage.AppInfoProvider
@@ -23,6 +26,13 @@ abstract class CollectorsModule {
     @Binds
     @IntoSet
     abstract fun usageStats(impl: UsageStatsCollector): PolledCollector
+
+    @Binds
+    @IntoSet
+    abstract fun steps(impl: StepsCollector): PolledCollector
+
+    @Binds
+    abstract fun stepsSource(impl: HealthConnectStepsSource): StepsSource
 
     @Binds
     abstract fun usageEventSource(impl: AndroidUsageEventSource): UsageEventSource

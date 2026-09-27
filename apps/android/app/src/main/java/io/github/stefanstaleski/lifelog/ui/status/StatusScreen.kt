@@ -167,6 +167,7 @@ private fun TodayCard(today: TodaySummary) {
         Row(Modifier.fillMaxWidth()) {
             BigNumber(minutesLabel(today.screenTimeMin), "screen time", Modifier.weight(1f))
             BigNumber(today.unlocks.toString(), "unlocks", Modifier.weight(1f))
+            today.steps?.let { BigNumber("%,d".format(it), "steps", Modifier.weight(1f)) }
         }
         if (today.topApps.isNotEmpty()) {
             HorizontalDivider()
@@ -289,6 +290,7 @@ private fun previewUi(health: Health) = StatusUi(
     sources = listOf(
         SourceRow("📱", "Screen time", previewNow.minusSeconds(900), true, "Counted in 30-minute blocks"),
         SourceRow("🔓", "Unlocks", previewNow.minusSeconds(300), true, "Each time you unlock the phone"),
+        SourceRow("👟", "Steps", previewNow.minusSeconds(3000), true, "Hourly, from Health Connect"),
         SourceRow("🌙", "Evening check-in", null, false, "Once a day, at 21:30"),
         SourceRow("💓", "Background check", previewNow.minusSeconds(600), true, "Lifelog checking in every 30 min"),
     ),

@@ -25,6 +25,7 @@ android {
 
 dependencies {
     api(project(":core:data"))
+    api(libs.health.connect)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 

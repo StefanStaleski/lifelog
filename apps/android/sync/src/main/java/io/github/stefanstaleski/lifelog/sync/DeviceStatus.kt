@@ -6,6 +6,8 @@ import android.os.BatteryManager
 import android.os.PowerManager
 import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
+import io.github.stefanstaleski.lifelog.collectors.health.StepsSource
 import javax.inject.Inject
 
 /** Permission and battery state that decides whether collection can keep running. */
@@ -17,16 +19,18 @@ data class DeviceStatus(
     val batteryPct: Int? = null,
     /** Exempt from "remove permissions if app is unused" (Android 11+ auto-revoke). */
     val autoRevokeExempt: Boolean? = null,
+    val healthConnect: HealthAccess? = null,
 )
 
-fun interface DeviceStatusSource {
-    fun read(): DeviceStatus
+interface DeviceStatusSource {
+    suspend fun read(): DeviceStatus
 }
 
 class AndroidDeviceStatusSource @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val steps: StepsSource,
 ) : DeviceStatusSource {
-    override fun read(): DeviceStatus {
+    override suspend fun read(): DeviceStatus {
         val appOps = context.getSystemService(AppOpsManager::class.java)
         val usageMode = appOps.unsafeCheckOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -42,6 +46,7 @@ class AndroidDeviceStatusSource @Inject constructor(
             charging = battery.isCharging,
             batteryPct = battery.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY).takeIf { it in 0..100 },
             autoRevokeExempt = context.packageManager.isAutoRevokeWhitelisted,
+            healthConnect = runCatching { steps.access() }.getOrDefault(HealthAccess.NOT_INSTALLED),
         )
     }
 }

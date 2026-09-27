@@ -3,6 +3,7 @@ package io.github.stefanstaleski.lifelog.sync
 import com.google.common.truth.Truth.assertThat
 import io.github.stefanstaleski.lifelog.collectors.CollectResult
 import io.github.stefanstaleski.lifelog.collectors.PolledCollector
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.core.data.EventWriter
 import io.github.stefanstaleski.lifelog.core.data.LifelogJson
 import io.github.stefanstaleski.lifelog.core.data.LifelogSettings
@@ -39,6 +40,7 @@ class CollectRunnerTest {
         charging = true,
         batteryPct = 64,
         autoRevokeExempt = false,
+        healthConnect = HealthAccess.NOT_GRANTED,
     )
 
     @Before fun setUp() {
@@ -53,7 +55,10 @@ class CollectRunnerTest {
         EventWriter(db.pendingEventDao(), LifelogJson, clock),
         settings,
         db.pendingEventDao(),
-    ) { status }
+        object : DeviceStatusSource {
+            override suspend fun read() = status
+        },
+    )
 
     private suspend fun stored() = db.pendingEventDao().pendingBatch(1000)
 
@@ -91,7 +96,10 @@ class CollectRunnerTest {
         val summary = runner(FakeCollector()).run()
         assertThat(summary).isEqualTo(CollectSummary(written = 1, errors = emptyList()))
         assertThat(heartbeat()).isEqualTo(
-            HeartbeatPayload("0.1.0", 1, false, true, false, charging = true, batteryPct = 64, autoRevokeExempt = false),
+            HeartbeatPayload(
+                "0.1.0", 1, false, true, false,
+                charging = true, batteryPct = 64, autoRevokeExempt = false, healthConnectGranted = false,
+            ),
         )
         assertThat(stored().map { it.type }).containsExactly("unlock", "heartbeat")
     }

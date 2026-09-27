@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.sync.DeviceStatus
 import io.github.stefanstaleski.lifelog.ui.LifelogTheme
 import io.github.stefanstaleski.lifelog.ui.LocalStatusColors
@@ -38,6 +39,7 @@ data class OnboardingActions(
     val onUsageAccess: () -> Unit = {},
     val onBattery: () -> Unit = {},
     val onNotifications: () -> Unit = {},
+    val onHealthConnect: () -> Unit = {},
     val onAppInfo: () -> Unit = {},
     val onFinish: () -> Unit = {},
 )
@@ -70,7 +72,12 @@ fun OnboardingScreen(checks: DeviceChecks, actions: OnboardingActions) {
             "A gentle nudge at 21:30 for your 5-second check-in.",
             checks.notificationsAllowed, required = false, "Allow", actions.onNotifications,
         ),
-    )
+        Step(
+            "👟", "Steps from Samsung Health",
+            "Reads your steps and distance from Health Connect. In Samsung Health, make sure Settings → Health Connect sync is on.",
+            checks.device.healthConnect == HealthAccess.AVAILABLE, required = false, "Allow", actions.onHealthConnect,
+        ).takeIf { checks.device.healthConnect != HealthAccess.NOT_INSTALLED },
+    ).filterNotNull()
     val ready = steps.filter { it.required }.all { it.done }
 
     Scaffold { padding ->
