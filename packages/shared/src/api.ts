@@ -33,6 +33,24 @@ export const PlaceSchema = z.strictObject({
 });
 export type Place = z.infer<typeof PlaceSchema>;
 
+/**
+ * How to read one bank's payment messages. `pattern` is a regular expression (JS and Java syntax
+ * agree for what we use) with named groups: `amount` (required), `currency` and `merchant` (optional).
+ */
+export const BankParserSchema = z.strictObject({
+  id: z.uuid(),
+  name: z.string(),
+  /** Where the messages come from: an app's notifications (package name) or SMS (sender). */
+  source: z.enum(["notification", "sms"]),
+  match: z.string().min(1),
+  pattern: z.string().min(1),
+  /** Used when the message has no currency group. */
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  decimal: z.enum([",", "."]),
+  direction: z.enum(["debit", "credit"]),
+});
+export type BankParser = z.infer<typeof BankParserSchema>;
+
 /** `GET /api/v1/config` */
 export const ConfigResponseSchema = z.strictObject({
   time_zone: z.literal(LOCAL_TIME_ZONE),
@@ -41,6 +59,7 @@ export const ConfigResponseSchema = z.strictObject({
   /** Local time of the daily check-in reminder, HH:mm. */
   checkin_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
   places: z.array(PlaceSchema),
+  bank_parsers: z.array(BankParserSchema),
 });
 export type ConfigResponse = z.infer<typeof ConfigResponseSchema>;
 

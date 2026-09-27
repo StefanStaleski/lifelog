@@ -12,5 +12,17 @@
       "lng": 21.4254,
       "radius_m": 120
     }
+  ],
+  "bank_parsers": [
+    {
+      "id": "8f7d1c52-2e4b-4a7e-9c1d-5a3b2c1d0e9f",
+      "name": "Example Bank",
+      "source": "notification",
+      "match": "mk.example.bank",
+      "pattern": "iznos (?<amount>[\\d.,]+) ?(?<currency>MKD|EUR|ДЕН) kaj (?<merchant>.+?)(?:\\.|$)",
+      "currency": "MKD",
+      "decimal": ",",
+      "direction": "debit"
+    }
   ]
 }

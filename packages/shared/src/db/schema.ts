@@ -8,6 +8,7 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgTable,
   primaryKey,
   real,
@@ -122,6 +123,7 @@ export const dailySummary = pgTable("daily_summary", {
   gymMin: integer("gym_min"),
   otherPlacesMin: integer("other_places_min"),
   notifications: integer("notifications"),
+  spendMkd: integer("spend_mkd"),
   updatedAt: tstz("updated_at").notNull().defaultNow(),
 }).enableRLS();
 
@@ -218,3 +220,51 @@ export const notificationsHourly = pgTable(
   },
   (t) => [primaryKey({ columns: [t.hour, t.package] })],
 ).enableRLS();
+
+/** Per-bank message formats, served to the phone in /v1/config (see packages/shared/src/bank.ts). */
+export const bankParsers = pgTable(
+  "bank_parsers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    source: text("source", { enum: ["notification", "sms"] }).notNull(),
+    match: text("match").notNull(),
+    pattern: text("pattern").notNull(),
+    currency: text("currency").notNull(),
+    decimal: text("decimal", { enum: [",", "."] }).notNull(),
+    direction: text("direction", { enum: ["debit", "credit"] })
+      .notNull()
+      .default("debit"),
+    active: boolean("active").notNull().default(true),
+    createdAt: tstz("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    check("bank_parsers_source", sql`${t.source} in ('notification', 'sms')`),
+    check("bank_parsers_decimal", sql`${t.decimal} in (',', '.')`),
+    check("bank_parsers_direction", sql`${t.direction} in ('debit', 'credit')`),
+  ],
+).enableRLS();
+
+export const transactions = pgTable(
+  "transactions",
+  {
+    eventId: uuid("event_id").primaryKey(),
+    occurredAt: tstz("occurred_at").notNull(),
+    amount: numeric("amount", { precision: 14, scale: 2, mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    direction: text("direction").notNull(),
+    merchant: text("merchant"),
+    category: text("category").notNull(),
+    /** sha256 of the original message; the message itself is never stored. */
+    rawHash: text("raw_hash").notNull().unique(),
+  },
+  (t) => [index("transactions_occurred_at_idx").on(t.occurredAt)],
+).enableRLS();
+
+/** Merchant name patterns (case-insensitive regex) → spending category. First match by priority wins. */
+export const spendingRules = pgTable("spending_rules", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  pattern: text("pattern").notNull(),
+  category: text("category").notNull(),
+  priority: integer("priority").notNull().default(100),
+}).enableRLS();

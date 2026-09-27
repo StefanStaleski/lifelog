@@ -204,6 +204,20 @@ export const NotificationsEventSchema = z
     }
   });
 
+/** A card payment or incoming transfer parsed on the phone. Never the message itself, only a hash. */
+export const TransactionEventSchema = z.strictObject({
+  ...envelope,
+  type: z.literal("transaction"),
+  payload: z.strictObject({
+    amount: z.number().positive().max(100_000_000),
+    currency: z.string().regex(/^[A-Z]{3}$/),
+    direction: z.enum(["debit", "credit"]),
+    merchant: z.string().trim().min(1).max(100).nullable(),
+    /** sha256 of the original message, hex: de-duplicates without keeping the text. */
+    raw_hash: z.string().regex(/^[0-9a-f]{64}$/),
+  }),
+});
+
 export const EventSchema = z.discriminatedUnion("type", [
   AppUsageEventSchema,
   UnlockEventSchema,
@@ -215,6 +229,7 @@ export const EventSchema = z.discriminatedUnion("type", [
   GeofenceEventSchema,
   StayEventSchema,
   NotificationsEventSchema,
+  TransactionEventSchema,
 ]);
 
 export type Event = z.infer<typeof EventSchema>;
@@ -229,6 +244,7 @@ export type ScreenEvent = z.infer<typeof ScreenEventSchema>;
 export type GeofenceEvent = z.infer<typeof GeofenceEventSchema>;
 export type StayEvent = z.infer<typeof StayEventSchema>;
 export type NotificationsEvent = z.infer<typeof NotificationsEventSchema>;
+export type TransactionEvent = z.infer<typeof TransactionEventSchema>;
 
 export const EVENT_TYPES = EventSchema.options.map((o) => o.shape.type.value) as EventType[];
 

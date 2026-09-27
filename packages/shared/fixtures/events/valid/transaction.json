@@ -1,0 +1,13 @@
+{
+  "id": "1ae534e4-4fdc-4337-9351-79d57309e213",
+  "type": "transaction",
+  "occurred_at": "2026-09-27T16:12:40Z",
+  "device_id": "s24",
+  "payload": {
+    "amount": 1250,
+    "currency": "MKD",
+    "direction": "debit",
+    "merchant": "VERO MARKET SKOPJE",
+    "raw_hash": "3f1c5e0a9b7d2c4e6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6"
+  }
+}

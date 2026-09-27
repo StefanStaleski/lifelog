@@ -57,6 +57,20 @@
       "when": 1790506958376,
       "tag": "20260927110238_notifications_processing",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790508160956,
+      "tag": "20260927112240_spending",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790508161947,
+      "tag": "20260927112241_spending_processing",
+      "breakpoints": true
     }
   ]
 }

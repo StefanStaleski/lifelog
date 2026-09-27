@@ -1,0 +1,14 @@
+{
+  "id": "bdb3a0b4-3bc2-4e87-a981-5e3dd074c983",
+  "type": "transaction",
+  "occurred_at": "2026-09-27T16:12:40Z",
+  "device_id": "s24",
+  "payload": {
+    "amount": 1250,
+    "currency": "MKD",
+    "direction": "debit",
+    "merchant": "VERO MARKET SKOPJE",
+    "raw_hash": "3f1c5e0a9b7d2c4e6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6",
+    "message": "Plateno so karticka ***1234 iznos 1.250,00 MKD kaj VERO MARKET SKOPJE"
+  }
+}
