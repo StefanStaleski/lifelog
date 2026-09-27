@@ -1,6 +1,6 @@
 # Life Tracker: Android App Build Spec
 
-Last updated: Sep 27, 2026 (Phase 1 built; see "Phase 1 as built")
+Last updated: Sep 27, 2026 (Phases 1–3 built; see "Phase 1 as built" and "Phases 2–3 as built")
 
 ## Overview
 
@@ -162,10 +162,12 @@ The API lives in the Next.js app on Vercel as route handlers under `/api/v1`: a 
 | POST | `/v1/events/batch` | Phone | Up to 500 events, gzip JSON; returns accepted and duplicate counts |
 | ~~POST~~ | ~~`/v1/checkins`~~ | — | Not built: check-ins travel as `checkin` events in `/v1/events/batch` (local-first); the processor upserts by date |
 | GET | `/v1/config` | Phone | Places (geofences), bank parser settings, collection intervals |
-| GET | `/v1/summary?from&to` | Dashboard | Rows of `daily_summary` |
+| GET | `/v1/summary?from&to` | Dashboard | Rows of `daily_summary` plus each metric's 30-day baseline |
 | GET | `/v1/metrics/:name?from&to&bucket` | Dashboard | One metric as a series (day, week, month) |
 | GET | `/v1/correlations?x&y&from&to` | Dashboard | Pearson r, sample size and the paired values |
-| GET, POST, PATCH | `/v1/places` | Dashboard | Manage named places |
+| GET, POST, PATCH | `/v1/places` | Dashboard | Manage named places (PATCH can archive) |
+| DELETE | `/v1/data?from&to&confirm=delete` | Dashboard | Kill switch: delete everything recorded on those local dates |
+| GET | `/v1/jobs/daily` | Vercel Cron | Daily weather refresh (bearer `CRON_SECRET`) |
 | GET | `/v1/health` | Phone, dashboard, MCP | Last event per source, errors, staleness |
 | GET | `/v1/gate?days=7` | You (`pnpm gate`) | Phase-gate report: heartbeat gaps over 4 h, per-day data, check-ins |
 
@@ -238,6 +240,18 @@ Changes and decisions made while building Phase 1 (the rest of this spec still a
 - **Wire contract** in `packages/shared` (zod) with JSON fixtures that both the TypeScript and Kotlin tests run against.
 - **Gate definition.** "No gaps" means no heartbeat silence over 4 h (Doze may delay work overnight; usage data is backfilled) and screen time or unlocks on every finished day. Missing check-ins are reported, not failing. Check with `pnpm gate`.
 - **Deploy.** Vercel project `staleski-dev/lifelog`, https://lifelog-opal-two.vercel.app. Supabase org "Lifelog"; the cloud project waits for a free-tier slot (limit of 2 active projects), then `scripts/setup-supabase.sh` finishes setup.
+
+## Phases 2–3 as built
+
+- **No foreground service.** Screen on/off comes from UsageStats, charging and battery are sampled in each heartbeat, and Activity Recognition and geofences deliver through PendingIntents (Android 15 limits `dataSync` services to 6 h/day).
+- **Steps** from Health Connect per finished UTC hour; the last 24 h are re-read every run because Samsung Health syncs late, and the server keeps the larger value per hour. Background reading permission is required (collection runs in WorkManager).
+- **Places:** named places are managed on a map in the dashboard (Time view) and reach the phone through `/v1/config`; geofences are re-registered only when places change. Stays of 15+ min elsewhere are detected on the phone from one balanced-power fix per run and uploaded with coordinates rounded to ~100 m.
+- **Sleep estimate** (`compute_sleep`): wake = the unlock ending the longest quiet stretch (3–16 h) in 21:00→14:00; start = the first screen-off after the last evening unlock; single night-time "blips" are ignored; confidence from screen-off, plausible length, stillness and charging; corrections are never overwritten. Runs on ingest and nightly (pg_cron, 01:00 UTC); a weekly job prunes processed raw events older than 90 days.
+- **Notifications** are counted per app per hour from flags only (never title or text); ongoing, group summaries and silent updates are ignored.
+- **Samsung hardening:** status cards for auto-revoke, the restricted standby bucket and "Never sleeping apps" (a checklist item, since apps can't read it).
+- **Dashboard:** magic-link sign-in for one owner (implicit flow so links work across devices; sign-ups disabled), Today, Trends (metric × 7/30/90/365 days, 7-day average, usual range band, week-over-week) and Time (hours per place kind, apps by category, places editor). Chart colours come from a validated palette.
+- **Weather** comes from Open-Meteo through a Vercel Cron job (not an Edge Function) into `context_daily`.
+- **Not built:** spending. Komercijalna banka's mBanka notifications carry no amounts ("Priliv/Odliv na sredstva"); the started framework is parked on branch `parked/spending-framework`. Google Calendar waits for OAuth approval. Insights and the MCP server are Phase 4.
 
 ## Build phases
 

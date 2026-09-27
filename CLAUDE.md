@@ -9,9 +9,12 @@ apps/android/      Kotlin app: Compose, Room, WorkManager, Hilt
   app/             UI: onboarding, status screen, check-in (+ 21:30 reminder, boot receiver)
   core/data/       Room (pending_events), EventWriter, payload models, LifelogSettings (DataStore)
   core/network/    HTTP client, gzip JSON batches, device token auth
-  collectors/      One PolledCollector per data source (Hilt set); usage/ = screen time + unlocks
+  collectors/      One PolledCollector per source (Hilt set): usage/ (screen time, unlocks, screen),
+                   health/ (Health Connect steps), activity/ (transitions), places/ (geofences, stays),
+                   notifications/ (listener + hourly counts)
   sync/            CollectRunner + heartbeat, Uploader (batches of 500), WorkManager jobs every 30 min
-apps/web/          Next.js (App Router) on Vercel: /api/v1 routes, dashboard, MCP route
+apps/web/          Next.js 16 on Vercel: /api/v1 routes, dashboard (app/(dashboard): Today, Trends, Time),
+                   proxy.ts (session refresh), lib/ (metrics registry, ingest, sleep via SQL), vercel.json (cron)
 packages/shared/   Wire contract (zod: events.ts, api.ts) + fixtures/, Drizzle schema (src/db)
 supabase/          migrations (incl. process_events SQL), pgTAP tests; later pg_cron + Edge Functions
 scripts/           smoke.sh, setup-supabase.sh, gate.mjs
@@ -67,6 +70,9 @@ Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.and
 - **No raw content stored:** no message bodies, no notification text, no call/SMS content, no raw GPS trace. Store counts, derived visits, salted hashes of phone numbers, and a hash of bank message text (for de-dup), never the text itself.
 - **Wire contract** lives in `packages/shared/src/events.ts` and `api.ts` (zod) with examples in `packages/shared/fixtures/`. Any change to an event type updates the schema, the fixtures and the Kotlin models in the same PR; both test suites run against the fixtures.
 - **Schema changes** go through `packages/shared/src/db/schema.ts` + `pnpm db:generate`; never edit a generated migration. Hand-written SQL (functions, grants, pg_cron) goes in `drizzle-kit generate --custom` migrations. CI fails if migrations drift from the schema.
+- **Processing lives in SQL** (`process_events`, `refresh_daily_summary`, `compute_sleep` in `supabase/migrations`). Applied migrations can't change, so a new version of a function is a new migration that replaces it whole; derive it from the previous version with asserted edits.
+- **Room schema changes** bump the version with an `AutoMigration` and a migration test (`core/data/.../MigrationTest.kt`); the phone keeps its database across updates.
+- **Tests share the local database:** `pnpm test` truncates it, so run `pnpm --filter web seed` again before looking at the dashboard locally.
 - `events` is append-only; typed tables and `daily_summary` are derived and can be rebuilt from it.
 - RLS enabled on every table with no public policies. Only server code uses the service role key, which lives in Vercel env vars / git-ignored `.env.local`, never in the app or browser.
 - API payloads and MCP outputs put units in field names (`screen_time_min`, `distance_m`, `spend_mkd`).
