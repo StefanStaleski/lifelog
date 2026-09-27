@@ -1,10 +1,14 @@
 package io.github.stefanstaleski.lifelog.ui
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -45,9 +49,14 @@ val LocalStatusColors = staticCompositionLocalOf { LightStatus }
 fun LifelogTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val dark = isSystemInDarkTheme()
-    // minSdk 30, so Material You dynamic colour is always available
-    val colors = if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-    androidx.compose.runtime.CompositionLocalProvider(LocalStatusColors provides if (dark) DarkStatus else LightStatus) {
+    // Material You (wallpaper) colours from Android 12; a fixed calm blue palette before that.
+    val colors = when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        dark -> darkColorScheme(primary = Color(0xFFA8C7FA))
+        else -> lightColorScheme(primary = Color(0xFF2B4C8C))
+    }
+    CompositionLocalProvider(LocalStatusColors provides if (dark) DarkStatus else LightStatus) {
         MaterialTheme(colorScheme = colors, content = content)
     }
 }

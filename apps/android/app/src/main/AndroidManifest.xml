@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Lets onboarding ask to be exempt from battery optimisation (keeps collection alive). -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Re-arm the check-in reminder after a reboot. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".LifelogApp"
@@ -24,6 +26,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".checkin.CheckinActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:windowSoftInputMode="adjustResize" />
+
+        <receiver
+            android:name=".checkin.CheckinAlarmReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".checkin.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <!-- WorkManager is initialised by LifelogApp (Hilt worker factory), not by App Startup. -->
         <provider

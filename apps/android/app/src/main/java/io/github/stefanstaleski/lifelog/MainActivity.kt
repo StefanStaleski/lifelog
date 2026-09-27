@@ -1,6 +1,7 @@
 package io.github.stefanstaleski.lifelog
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,6 +16,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.stefanstaleski.lifelog.checkin.CheckinActivity
 import io.github.stefanstaleski.lifelog.ui.LifelogTheme
 import io.github.stefanstaleski.lifelog.ui.common.SystemSettings
 import io.github.stefanstaleski.lifelog.ui.onboarding.OnboardingActions
@@ -91,6 +93,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                         },
                         onSyncNow = status::syncNow,
                         onPausedChange = status::setPaused,
+                        onCheckin = { context.startActivity(Intent(context, CheckinActivity::class.java)) },
                     ),
                 )
             }
