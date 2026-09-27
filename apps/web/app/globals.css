@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --color-good: #1e9e4a;
+  --color-good-soft: #ddf4e4;
+  --color-attention: #c77700;
+  --color-attention-soft: #ffefd2;
+  --color-accent: #3b5bdb;
+  --color-accent-soft: #e5ebff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-good: #5bd68a;
+    --color-good-soft: #123a21;
+    --color-attention: #ffb84d;
+    --color-attention-soft: #45300a;
+    --color-accent: #9fb4ff;
+    --color-accent-soft: #1d2748;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+}

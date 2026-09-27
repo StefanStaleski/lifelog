@@ -413,3 +413,35 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------------------
+# Lifelog: dashboard sign-in by magic link (one owner, no sign-ups; email templates
+# can't be changed on the free tier with the built-in sender). Local values above are
+# for `supabase start`; the cloud project gets these via `supabase config push`.
+[remotes.production]
+project_id = "itiulabamqhidvpjvgvt"
+
+[remotes.production.auth]
+site_url = "https://lifelog-opal-two.vercel.app"
+additional_redirect_urls = ["https://lifelog-opal-two.vercel.app/auth/callback", "http://localhost:3000/auth/callback"]
+enable_signup = false
+
+[remotes.production.auth.email]
+enable_signup = false
+otp_length = 6
+otp_expiry = 900
+# unchanged cloud values (pinned so a push only touches the sign-in settings above)
+enable_confirmations = true
+max_frequency = "1m0s"
+
+[remotes.production.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[remotes.production.db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[remotes.production.storage.analytics]
+enabled = true
+max_namespaces = 10
