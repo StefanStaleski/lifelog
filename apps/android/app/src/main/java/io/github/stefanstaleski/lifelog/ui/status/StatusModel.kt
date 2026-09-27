@@ -4,6 +4,8 @@ import io.github.stefanstaleski.lifelog.core.data.SyncStatus
 import io.github.stefanstaleski.lifelog.core.data.db.PendingEventEntity
 import io.github.stefanstaleski.lifelog.core.data.model.AppUsagePayload
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
+import io.github.stefanstaleski.lifelog.core.data.model.StepsPayload
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.sync.DeviceStatus
 import java.time.Duration
 import java.time.Instant
@@ -14,13 +16,13 @@ import kotlinx.serialization.json.Json
 enum class Health { GOOD, ATTENTION, PAUSED }
 
 /** What the user can tap to fix a problem. */
-enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, SYNC_NOW, NONE }
+enum class Fix { USAGE_ACCESS, BATTERY, NOTIFICATIONS, HEALTH_CONNECT, SYNC_NOW, NONE }
 
 data class Problem(val emoji: String, val title: String, val detail: String, val fix: Fix, val action: String?)
 
 data class AppTime(val label: String, val minutes: Int)
 
-data class TodaySummary(val screenTimeMin: Int, val unlocks: Int, val topApps: List<AppTime>) {
+data class TodaySummary(val screenTimeMin: Int, val unlocks: Int, val topApps: List<AppTime>, val steps: Int? = null) {
     companion object {
         val EMPTY = TodaySummary(0, 0, emptyList())
     }
@@ -56,6 +58,12 @@ fun todaySummary(events: List<PendingEventEntity>, today: LocalDate, zone: ZoneI
             .take(3)
             .map { (label, ms) -> AppTime(label, (ms / 60_000).toInt()) }
             .filter { it.minutes > 0 },
+        // An hour can be sent again with a higher count (late sync): keep the largest per hour.
+        steps = todays.filter { it.type == EventType.STEPS.wire }
+            .groupBy { it.occurredAt }
+            .values
+            .sumOf { versions -> versions.maxOf { json.decodeFromString<StepsPayload>(it.payload).steps } }
+            .takeIf { todays.any { it.type == EventType.STEPS.wire } },
     )
 }
 
@@ -65,6 +73,7 @@ private data class SourceSpec(val type: String, val emoji: String, val name: Str
 private val sourceSpecs = listOf(
     SourceSpec(EventType.APP_USAGE.wire, "📱", "Screen time", Duration.ofHours(24), "Counted in 30-minute blocks"),
     SourceSpec(EventType.UNLOCK.wire, "🔓", "Unlocks", Duration.ofHours(24), "Each time you unlock the phone"),
+    SourceSpec(EventType.STEPS.wire, "👟", "Steps", Duration.ofHours(24), "Hourly, from Health Connect"),
     SourceSpec(EventType.CHECKIN.wire, "🌙", "Evening check-in", Duration.ofHours(48), "Once a day, at 21:30"),
     SourceSpec(EventType.HEARTBEAT.wire, "💓", "Background check", Duration.ofHours(2), "Lifelog checking in every 30 min"),
 )
@@ -85,6 +94,9 @@ fun buildStatusUi(
         }
         if (!device.batteryOptimizationIgnored) {
             add(Problem("🔋", "Battery saver may pause Lifelog", "Allow it to run in the background so no data is missed.", Fix.BATTERY, "Allow"))
+        }
+        if (device.healthConnect == HealthAccess.NOT_GRANTED) {
+            add(Problem("👟", "Steps are off", "Allow Lifelog to read steps and distance from Health Connect.", Fix.HEALTH_CONNECT, "Allow"))
         }
         if (!notificationsAllowed) {
             add(Problem("🔔", "Reminders are off", "You won't get the 21:30 check-in nudge.", Fix.NOTIFICATIONS, "Turn on"))

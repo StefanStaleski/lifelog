@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.health.connect.client.PermissionController
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +54,11 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
         if (!granted) SystemSettings.openNotificationSettings(context)
         main.refreshChecks()
     }
+    val healthPermission = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) {
+        main.refreshChecks()
+    }
+    val requestHealthConnect = { healthPermission.launch(main.healthPermissions()) }
+
     val requestNotifications = {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -69,6 +75,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                 onUsageAccess = { SystemSettings.openUsageAccess(context) },
                 onBattery = { SystemSettings.requestIgnoreBatteryOptimizations(context) },
                 onNotifications = requestNotifications,
+                onHealthConnect = requestHealthConnect,
                 onAppInfo = { SystemSettings.openAppInfo(context) },
                 onFinish = main::finishOnboarding,
             ),
@@ -87,6 +94,7 @@ private fun AppRoot(main: MainViewModel = hiltViewModel()) {
                                 Fix.USAGE_ACCESS -> SystemSettings.openUsageAccess(context)
                                 Fix.BATTERY -> SystemSettings.requestIgnoreBatteryOptimizations(context)
                                 Fix.NOTIFICATIONS -> requestNotifications()
+                                Fix.HEALTH_CONNECT -> requestHealthConnect()
                                 Fix.SYNC_NOW -> status.syncNow()
                                 Fix.NONE -> Unit
                             }

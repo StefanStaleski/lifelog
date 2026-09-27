@@ -2,6 +2,7 @@ package io.github.stefanstaleski.lifelog.sync
 
 import android.util.Log
 import io.github.stefanstaleski.lifelog.collectors.PolledCollector
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.core.data.EventWriter
 import io.github.stefanstaleski.lifelog.core.data.LifelogSettings
 import io.github.stefanstaleski.lifelog.core.data.db.PendingEventDao
@@ -59,6 +60,9 @@ class CollectRunner @Inject constructor(
                 charging = status.charging,
                 batteryPct = status.batteryPct,
                 autoRevokeExempt = status.autoRevokeExempt,
+                // null when Health Connect isn't on the phone at all (nothing to grant)
+                healthConnectGranted = status.healthConnect?.takeIf { it != HealthAccess.NOT_INSTALLED }
+                    ?.let { it == HealthAccess.AVAILABLE },
             ),
         )
         settings.recordCollect(now, errors)

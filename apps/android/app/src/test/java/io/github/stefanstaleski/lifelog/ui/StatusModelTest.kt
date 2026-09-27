@@ -6,6 +6,8 @@ import io.github.stefanstaleski.lifelog.core.data.LocalZone
 import io.github.stefanstaleski.lifelog.core.data.SyncStatus
 import io.github.stefanstaleski.lifelog.core.data.db.PendingEventEntity
 import io.github.stefanstaleski.lifelog.core.data.model.AppUsagePayload
+import io.github.stefanstaleski.lifelog.core.data.model.StepsPayload
+import io.github.stefanstaleski.lifelog.collectors.health.HealthAccess
 import io.github.stefanstaleski.lifelog.sync.DeviceStatus
 import io.github.stefanstaleski.lifelog.ui.status.AppTime
 import io.github.stefanstaleski.lifelog.ui.status.Fix
@@ -87,6 +89,22 @@ class StatusModelTest {
         assertThat(ui(sync = never).problems.single().detail).isEqualTo("device token rejected (HTTP 401)")
     }
 
+    @Test fun stepsTodayKeepTheLargestCountPerHour() {
+        fun steps(at: String, n: Int) = PendingEventEntity(
+            "s@$at@$n", "steps", Instant.parse(at).toEpochMilli(), Instant.parse(at).plusSeconds(3600).toEpochMilli(),
+            LifelogJson.encodeToString(StepsPayload(n, n)), createdAt = 0,
+        )
+        val events = listOf(steps("2026-09-27T07:00:00Z", 300), steps("2026-09-27T07:00:00Z", 900), steps("2026-09-27T09:00:00Z", 100))
+        assertThat(todaySummary(events, LocalDate.of(2026, 9, 27), LocalZone, LifelogJson).steps).isEqualTo(1000)
+        assertThat(todaySummary(emptyList(), LocalDate.of(2026, 9, 27), LocalZone, LifelogJson).steps).isNull()
+    }
+
+    @Test fun healthConnectNotGrantedIsAProblemButNotInstalledIsNot() {
+        assertThat(ui(device = allOk.copy(healthConnect = HealthAccess.NOT_GRANTED)).problems.map { it.fix })
+            .containsExactly(Fix.HEALTH_CONNECT)
+        assertThat(ui(device = allOk.copy(healthConnect = HealthAccess.NOT_INSTALLED)).problems).isEmpty()
+    }
+
     @Test fun sourcesAreFreshWithinTheirAllowance() {
         val ui = ui(
             last = mapOf(
@@ -98,6 +116,7 @@ class StatusModelTest {
         assertThat(fresh).containsExactly(
             "Screen time", false,
             "Unlocks", true,
+            "Steps", false,
             "Evening check-in", false,
             "Background check", false,
         )

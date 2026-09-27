@@ -27,7 +27,7 @@ class DeviceChecksRepository @Inject constructor(
     private val state = MutableStateFlow(DeviceChecks.UNKNOWN)
     val checks: StateFlow<DeviceChecks> = state.asStateFlow()
 
-    fun refresh() {
+    suspend fun refresh() {
         state.value = DeviceChecks(source.read(), NotificationManagerCompat.from(context).areNotificationsEnabled())
     }
 }
