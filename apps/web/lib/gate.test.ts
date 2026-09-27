@@ -148,4 +148,21 @@ describe("GET /api/v1/gate", () => {
     });
     expect(gate.summary).toBe("Day 1 of 7, no gaps so far.");
   });
+
+  it("ignores the deploy smoke test's heartbeat", async () => {
+    await ingestBatch(getDb(), [
+      {
+        ...fx.heartbeat,
+        id: randomUUID(),
+        occurred_at: "2000-01-01T00:00:00Z",
+        device_id: "smoke-test",
+      },
+    ]);
+    const gate = await getGate(getDb(), 7, new Date("2026-09-27T12:00:00Z"));
+    expect(gate).toMatchObject({
+      tracking_since: null,
+      gaps: [],
+      summary: "No data from the phone yet.",
+    });
+  });
 });

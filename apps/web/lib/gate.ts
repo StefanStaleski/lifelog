@@ -1,6 +1,6 @@
-import { type GateResponse, toLocalDate } from "@lifelog/shared";
+import { type GateResponse, SMOKE_TEST_DEVICE_ID, toLocalDate } from "@lifelog/shared";
 import { checkins, dailySummary, events } from "@lifelog/shared/db";
-import { and, asc, between, eq, gte, lte, min } from "drizzle-orm";
+import { and, asc, between, eq, gte, lte, min, ne } from "drizzle-orm";
 import type { Db } from "./db";
 
 /**
@@ -104,14 +104,19 @@ export function datesBetween(first: string, last: string): string[] {
 export async function getGate(db: Db, days: number, now = new Date()): Promise<GateResponse> {
   const from = new Date(now.getTime() - days * 86_400_000);
 
+  // Only the phone's heartbeats count; the deploy smoke test writes one dated 2000-01-01.
+  const phoneHeartbeat = and(
+    eq(events.type, "heartbeat"),
+    ne(events.deviceId, SMOKE_TEST_DEVICE_ID),
+  );
   const [first] = await db
     .select({ at: min(events.occurredAt) })
     .from(events)
-    .where(eq(events.type, "heartbeat"));
+    .where(phoneHeartbeat);
   const beats = await db
     .select({ at: events.occurredAt })
     .from(events)
-    .where(and(eq(events.type, "heartbeat"), between(events.occurredAt, from, now)))
+    .where(and(phoneHeartbeat, between(events.occurredAt, from, now)))
     .orderBy(asc(events.occurredAt));
 
   const fromDate = toLocalDate(from);
