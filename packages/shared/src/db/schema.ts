@@ -218,3 +218,16 @@ export const notificationsHourly = pgTable(
   },
   (t) => [primaryKey({ columns: [t.hour, t.package] })],
 ).enableRLS();
+
+/** Context for each local day that doesn't come from the phone: weather (and later calendar load). */
+export const contextDaily = pgTable("context_daily", {
+  date: date("date", { mode: "string" }).primaryKey(),
+  tempMax: real("temp_max"),
+  tempMin: real("temp_min"),
+  precipMm: real("precip_mm"),
+  /** WMO weather code (Open-Meteo). */
+  weatherCode: smallint("weather_code"),
+  meetingCount: smallint("meeting_count"),
+  meetingMinutes: integer("meeting_minutes"),
+  updatedAt: tstz("updated_at").notNull().defaultNow(),
+}).enableRLS();

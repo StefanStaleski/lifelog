@@ -18,7 +18,7 @@ export function validFixtures(): Record<string, Record<string, unknown>> {
 
 export async function resetDb(): Promise<void> {
   await getDb().execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily`,
   );
 }
 

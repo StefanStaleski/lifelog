@@ -4,7 +4,7 @@
  * Refuses to touch anything but a local database. Deterministic (seeded), so screenshots repeat.
  */
 import { randomUUID } from "node:crypto";
-import { places } from "@lifelog/shared/db";
+import { contextDaily, places } from "@lifelog/shared/db";
 import { sql } from "drizzle-orm";
 import { closeDb, getDb } from "@/lib/db";
 import { ingestBatch } from "@/lib/ingest";
@@ -56,7 +56,7 @@ const at = (dayStart: Date, hour: number) =>
 async function main() {
   const db = getDb();
   await db.execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily`,
   );
   const [home, work, gym] = await db
     .insert(places)
@@ -240,6 +240,16 @@ async function main() {
         }),
       );
     }
+
+    // Weather: a mild September with the odd rainy day
+    const rainy = rand() < 0.25;
+    await db.insert(contextDaily).values({
+      date: day.toISOString().slice(0, 10),
+      tempMax: Math.round(between(18, 28) * 10) / 10,
+      tempMin: Math.round(between(8, 14) * 10) / 10,
+      precipMm: rainy ? Math.round(between(1, 12) * 10) / 10 : 0,
+      weatherCode: rainy ? 61 : pick([0, 1, 2, 3]),
+    });
 
     events.sort((a, b) => String(a.occurred_at).localeCompare(String(b.occurred_at)));
     for (let i = 0; i < events.length; i += 500) {
