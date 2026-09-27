@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.stefanstaleski.lifelog.collectors.activity.ActivityTracker
 import io.github.stefanstaleski.lifelog.core.data.LocalZone
 import io.github.stefanstaleski.lifelog.sync.SyncScheduler
 import java.time.Clock
@@ -33,11 +34,12 @@ class CheckinAlarmReceiver : BroadcastReceiver() {
     }
 }
 
-/** Alarms don't survive a reboot or a clock/zone change; re-arm them. */
+/** Alarms and activity registrations don't survive a reboot or update; re-arm them. */
 @AndroidEntryPoint
 class BootReceiver : BroadcastReceiver() {
     @Inject lateinit var reminder: CheckinReminder
     @Inject lateinit var syncScheduler: SyncScheduler
+    @Inject lateinit var activityTracker: ActivityTracker
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -48,6 +50,7 @@ class BootReceiver : BroadcastReceiver() {
             -> {
                 reminder.scheduleNext()
                 syncScheduler.schedulePeriodic()
+                activityTracker.register()
             }
         }
     }
