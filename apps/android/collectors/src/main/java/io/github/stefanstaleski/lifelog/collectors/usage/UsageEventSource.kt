@@ -38,6 +38,7 @@ class AndroidUsageEventSource @Inject constructor(
                 UsageEvents.Event.ACTIVITY_RESUMED -> UsageRecord.Kind.ACTIVITY_RESUMED
                 UsageEvents.Event.ACTIVITY_PAUSED -> UsageRecord.Kind.ACTIVITY_PAUSED
                 UsageEvents.Event.ACTIVITY_STOPPED -> UsageRecord.Kind.ACTIVITY_STOPPED
+                UsageEvents.Event.SCREEN_INTERACTIVE -> UsageRecord.Kind.SCREEN_ON
                 UsageEvents.Event.SCREEN_NON_INTERACTIVE -> UsageRecord.Kind.SCREEN_OFF
                 UsageEvents.Event.KEYGUARD_HIDDEN -> UsageRecord.Kind.KEYGUARD_HIDDEN
                 UsageEvents.Event.DEVICE_SHUTDOWN -> UsageRecord.Kind.SHUTDOWN

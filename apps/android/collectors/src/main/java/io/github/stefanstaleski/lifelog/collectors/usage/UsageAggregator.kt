@@ -5,13 +5,20 @@ import java.time.Instant
 
 /** The subset of android.app.usage.UsageEvents we need, free of Android types for testing. */
 data class UsageRecord(val timeMs: Long, val kind: Kind, val packageName: String, val className: String? = null) {
-    enum class Kind { ACTIVITY_RESUMED, ACTIVITY_PAUSED, ACTIVITY_STOPPED, SCREEN_OFF, KEYGUARD_HIDDEN, SHUTDOWN }
+    enum class Kind { ACTIVITY_RESUMED, ACTIVITY_PAUSED, ACTIVITY_STOPPED, SCREEN_ON, SCREEN_OFF, KEYGUARD_HIDDEN, SHUTDOWN }
 }
 
 /** Foreground time of one app inside one window [windowStart, windowStart + window). */
 data class WindowUsage(val windowStart: Instant, val packageName: String, val foregroundMs: Long, val launches: Int)
 
-data class UsageAggregate(val usage: List<WindowUsage>, val unlocks: List<Instant>)
+/** Screen turned on (true) or off (false) at [at]. */
+data class ScreenChange(val at: Instant, val on: Boolean)
+
+data class UsageAggregate(
+    val usage: List<WindowUsage>,
+    val unlocks: List<Instant>,
+    val screen: List<ScreenChange> = emptyList(),
+)
 
 /**
  * Turns raw usage events into per-app foreground time per fixed window, plus unlock times.
@@ -38,7 +45,12 @@ object UsageAggregator {
             .map { Instant.ofEpochMilli(it.timeMs) }
             .distinct()
             .sorted()
-        return UsageAggregate(usage.sortedWith(compareBy({ it.windowStart }, { it.packageName })), unlocks)
+        val screen = records
+            .filter { (it.kind == UsageRecord.Kind.SCREEN_ON || it.kind == UsageRecord.Kind.SCREEN_OFF) && it.timeMs in fromMs until toMs }
+            .map { ScreenChange(Instant.ofEpochMilli(it.timeMs), it.kind == UsageRecord.Kind.SCREEN_ON) }
+            .distinct()
+            .sortedBy { it.at }
+        return UsageAggregate(usage.sortedWith(compareBy({ it.windowStart }, { it.packageName })), unlocks, screen)
     }
 
     /** Per package: raw [start, end) spans of its activities. */
@@ -56,7 +68,7 @@ object UsageAggregator {
                 UsageRecord.Kind.ACTIVITY_RESUMED -> if (key !in open) open[key] = r.timeMs
                 UsageRecord.Kind.ACTIVITY_PAUSED, UsageRecord.Kind.ACTIVITY_STOPPED -> close(key, r.timeMs)
                 UsageRecord.Kind.SCREEN_OFF, UsageRecord.Kind.SHUTDOWN -> open.keys.toList().forEach { close(it, r.timeMs) }
-                UsageRecord.Kind.KEYGUARD_HIDDEN -> Unit
+                UsageRecord.Kind.KEYGUARD_HIDDEN, UsageRecord.Kind.SCREEN_ON -> Unit
             }
         }
         open.keys.toList().forEach { close(it, endMs) }

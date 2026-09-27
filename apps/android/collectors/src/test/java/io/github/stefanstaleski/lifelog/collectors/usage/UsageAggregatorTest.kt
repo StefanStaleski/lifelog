@@ -94,6 +94,24 @@ class UsageAggregatorTest {
         ).inOrder()
     }
 
+    @Test fun screenChangesInsideTheRangeInOrder() {
+        val result = run(
+            UsageRecord(at(-5.0), Kind.SCREEN_ON, "android"),
+            UsageRecord(at(3.0), Kind.SCREEN_ON, "android"),
+            UsageRecord(at(20.0), Kind.SCREEN_OFF, "android"),
+            UsageRecord(at(61.0), Kind.SCREEN_OFF, "android"),
+        )
+        assertThat(result.screen).containsExactly(
+            ScreenChange(Instant.ofEpochMilli(at(3.0)), on = true),
+            ScreenChange(Instant.ofEpochMilli(at(20.0)), on = false),
+        ).inOrder()
+    }
+
+    @Test fun screenOnDoesNotStartOrEndAppSessions() {
+        val result = run(resumed(0.0, "chat"), UsageRecord(at(2.0), Kind.SCREEN_ON, "android"), paused(6.0, "chat"))
+        assertThat(result.usage.single().foregroundMs).isEqualTo(ms(6.0))
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun rangeMustBeWholeWindows() {
         UsageAggregator.aggregate(emptyList(), win(0), win(45))

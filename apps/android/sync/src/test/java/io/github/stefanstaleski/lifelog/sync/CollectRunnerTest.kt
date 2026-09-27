@@ -32,7 +32,14 @@ class CollectRunnerTest {
     private lateinit var db: LifelogDatabase
     private lateinit var settings: LifelogSettings
     private val clock = MutableClock(Instant.parse("2026-09-27T08:00:00Z"))
-    private val status = DeviceStatus("0.1.0", usageAccessGranted = true, batteryOptimizationIgnored = false)
+    private val status = DeviceStatus(
+        "0.1.0",
+        usageAccessGranted = true,
+        batteryOptimizationIgnored = false,
+        charging = true,
+        batteryPct = 64,
+        autoRevokeExempt = false,
+    )
 
     @Before fun setUp() {
         db = inMemoryDb()
@@ -83,7 +90,9 @@ class CollectRunnerTest {
     @Test fun writesAHeartbeatWithDeviceStatusAndQueueSize() = runTest {
         val summary = runner(FakeCollector()).run()
         assertThat(summary).isEqualTo(CollectSummary(written = 1, errors = emptyList()))
-        assertThat(heartbeat()).isEqualTo(HeartbeatPayload("0.1.0", 1, false, true, false))
+        assertThat(heartbeat()).isEqualTo(
+            HeartbeatPayload("0.1.0", 1, false, true, false, charging = true, batteryPct = 64, autoRevokeExempt = false),
+        )
         assertThat(stored().map { it.type }).containsExactly("unlock", "heartbeat")
     }
 

@@ -5,6 +5,7 @@ import io.github.stefanstaleski.lifelog.collectors.PolledCollector
 import io.github.stefanstaleski.lifelog.core.data.NewEvent
 import io.github.stefanstaleski.lifelog.core.data.model.AppUsagePayload
 import io.github.stefanstaleski.lifelog.core.data.model.EventType
+import io.github.stefanstaleski.lifelog.core.data.model.ScreenPayload
 import io.github.stefanstaleski.lifelog.core.data.model.UnlockPayload
 import java.time.Duration
 import java.time.Instant
@@ -13,7 +14,8 @@ import javax.inject.Inject
 import kotlinx.serialization.serializer
 
 /**
- * Screen time per app (one `app_usage` event per app per 30-min UTC window) and unlocks.
+ * Screen time per app (one `app_usage` event per app per 30-min UTC window), unlocks and
+ * screen on/off changes (for the sleep estimate).
  * Only complete windows are emitted; the watermark is the end of the last complete window.
  */
 class UsageStatsCollector @Inject constructor(
@@ -52,7 +54,17 @@ class UsageStatsCollector @Inject constructor(
                 id = stableId("unlock|${at.toEpochMilli()}"),
             )
         }
-        return CollectResult(usage + unlocks, to)
+        val screen = aggregate.screen.map { change ->
+            val state = if (change.on) "on" else "off"
+            NewEvent(
+                type = EventType.SCREEN,
+                payload = ScreenPayload(state),
+                serializer = serializer<ScreenPayload>(),
+                occurredAt = change.at,
+                id = stableId("screen|$state|${change.at.toEpochMilli()}"),
+            )
+        }
+        return CollectResult(usage + unlocks + screen, to)
     }
 
     companion object {
