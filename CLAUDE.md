@@ -47,6 +47,13 @@ adb logcat -s Lifelog                 # app log tag
 
 Android setup: AGP 9 with built-in Kotlin (don't apply `org.jetbrains.kotlin.android`), versions in `apps/android/gradle/libs.versions.toml`, compileSdk 37 / targetSdk 36 / minSdk 30, package `io.github.stefanstaleski.lifelog`. Per-machine values go in git-ignored `apps/android/local.properties`: `lifelog.apiBaseUrl` (default `http://localhost:3000/`) and `lifelog.deviceToken`, exposed as `BuildConfig.API_BASE_URL` / `DEVICE_TOKEN`. Cleartext HTTP is allowed only to localhost.
 
+## Deploy
+
+- Vercel project `staleski-dev/lifelog` (root directory `apps/web`), production URL https://lifelog-opal-two.vercel.app. Repo root is linked (`.vercel/`, git-ignored). Deploy with `vercel deploy --prod --scope staleski-dev` until the GitHub integration is connected.
+- Env vars on Vercel (production): `DEVICE_TOKEN`, `DATABASE_URL` (Supabase transaction pooler, port 6543). Local copies plus `SUPABASE_DB_PASSWORD` live in git-ignored `apps/web/.env.local`.
+- Supabase org "Lifelog". `scripts/setup-supabase.sh` creates/links the cloud project, runs `db push`, sets `DATABASE_URL` on Vercel, redeploys and smoke-tests. Schema changes later: `pnpm exec supabase db push`.
+- `scripts/smoke.sh [base-url]` checks a deployment end to end (safe to re-run).
+
 ## Conventions
 
 - **Timestamps are UTC** everywhere (device, API, DB: `timestamptz`). Only `daily_summary.date` (and other `date` columns) is a local date in `Europe/Skopje`.
