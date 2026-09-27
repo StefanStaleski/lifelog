@@ -19,6 +19,7 @@
   --viz-grid: #e7e5e4;
   --viz-band: #eeeae6;
   --viz-text: #78716c;
+  --chart-surface: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +37,7 @@
     --viz-grid: #292524;
     --viz-band: #2a2624;
     --viz-text: #a8a29e;
+    --chart-surface: #1c1917;
   }
 }
 
