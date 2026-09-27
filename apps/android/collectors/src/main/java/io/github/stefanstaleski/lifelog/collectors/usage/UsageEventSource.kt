@@ -1,21 +1,33 @@
 package io.github.stefanstaleski.lifelog.collectors.usage
 
+import android.app.AppOpsManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.os.Process
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.Instant
 import javax.inject.Inject
 
 fun interface UsageEventSource {
-    /** Events in [from, to); empty when usage access is not granted. */
+    /**
+     * Events in [from, to).
+     * @throws UsageAccessMissingException without usage access, because Android then returns an
+     * empty list that would look like "phone not used" and the window would be skipped for good.
+     */
     fun read(from: Instant, to: Instant): List<UsageRecord>
 }
+
+class UsageAccessMissingException : IllegalStateException("usage access not granted")
 
 class AndroidUsageEventSource @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : UsageEventSource {
     override fun read(from: Instant, to: Instant): List<UsageRecord> {
+        val mode = context.getSystemService(AppOpsManager::class.java)
+            .unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
+        if (mode != AppOpsManager.MODE_ALLOWED) throw UsageAccessMissingException()
+
         val usm = context.getSystemService(UsageStatsManager::class.java)
         val events = usm.queryEvents(from.toEpochMilli(), to.toEpochMilli())
         val out = mutableListOf<UsageRecord>()

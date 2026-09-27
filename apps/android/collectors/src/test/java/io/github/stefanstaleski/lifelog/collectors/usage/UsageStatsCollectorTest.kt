@@ -65,6 +65,12 @@ class UsageStatsCollectorTest {
         assertThat(second).isEqualTo(first)
     }
 
+    @Test fun withoutUsageAccessItFailsInsteadOfSkippingTheWindow() = runTest {
+        val noAccess = UsageStatsCollector({ _, _ -> throw UsageAccessMissingException() }, apps)
+        val error = runCatching { noAccess.collect(at(0), at(60)) }.exceptionOrNull()
+        assertThat(error).isInstanceOf(UsageAccessMissingException::class.java)
+    }
+
     @Test fun firstRunStartsAtAWindowBoundary() = runTest {
         collector.collect(since = at(7), until = at(95))
         assertThat(requested.single().second).isEqualTo(at(90))

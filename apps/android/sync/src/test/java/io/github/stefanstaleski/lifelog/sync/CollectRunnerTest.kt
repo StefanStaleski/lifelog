@@ -106,6 +106,18 @@ class CollectRunnerTest {
         assertThat(settings.syncStatus.first().lastCollectError).isEqualTo("a-broken: boom")
     }
 
+    @Test fun aWindowCollectedWithoutAccessIsCollectedLaterNotSkipped() = runTest {
+        val collector = FakeCollector()
+        collector.fail = true // e.g. usage access not granted yet
+        runner(collector).run()
+        clock.now = clock.now.plus(Duration.ofMinutes(5))
+        collector.fail = false // access granted
+        runner(collector).run()
+
+        // The second run still starts a day back, not from the failed run's time.
+        assertThat(collector.calls.last().first).isEqualTo(Instant.parse("2026-09-26T08:05:00Z"))
+    }
+
     @Test fun recollectingTheSameWindowDoesNotDuplicate() = runTest {
         val collector = FakeCollector()
         runner(collector).run()
