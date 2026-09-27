@@ -44,7 +44,7 @@ export default async function TimePage({
               key={r}
               href={`/time?r=${r}`}
               aria-current={r === range ? "true" : undefined}
-              className="rounded-full px-3.5 py-1.5 text-sm font-medium text-stone-600 aria-[current=true]:bg-white aria-[current=true]:text-stone-900 aria-[current=true]:shadow-sm dark:text-stone-300 dark:aria-[current=true]:bg-stone-950 dark:aria-[current=true]:text-white"
+              className="rounded-full px-3.5 py-1.5 text-sm font-medium text-stone-600 aria-[current=true]:bg-accent/15 aria-[current=true]:text-accent dark:text-stone-300"
             >
               {r} days
             </Link>

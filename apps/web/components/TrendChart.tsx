@@ -115,7 +115,7 @@ export function TrendChart({ points, unit, band }: Props) {
           <Bar
             dataKey="value"
             fill="var(--series-1)"
-            fillOpacity={0.45}
+            fillOpacity={0.6}
             radius={many ? 0 : [4, 4, 0, 0]}
             isAnimationActive={false}
           />

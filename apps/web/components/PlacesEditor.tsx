@@ -117,7 +117,7 @@ export function PlacesEditor({
                       });
                       setFocus([s.lat, s.lng]);
                     }}
-                    className="rounded-full bg-stone-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-stone-100 dark:text-stone-900"
+                    className="rounded-full bg-accent px-3 py-1.5 text-sm font-medium text-stone-950 hover:bg-accent/85"
                   >
                     {s.kind === "other" ? "Name it" : `Add as ${DEFAULT_NAME[s.kind]}`}
                   </button>
@@ -164,7 +164,7 @@ export function PlacesEditor({
                 role="radio"
                 aria-checked={draft.kind === k.value}
                 onClick={() => setDraft({ ...draft, kind: k.value })}
-                className="rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-stone-200 aria-checked:bg-stone-900 aria-checked:text-white dark:bg-stone-900 dark:ring-stone-700 dark:aria-checked:bg-stone-100 dark:aria-checked:text-stone-900"
+                className="rounded-full bg-white px-3 py-1.5 text-sm ring-1 ring-stone-200 aria-checked:bg-accent/15 aria-checked:text-accent aria-checked:ring-accent/50 dark:bg-stone-900 dark:ring-stone-700"
               >
                 {k.label}
               </button>
@@ -188,7 +188,7 @@ export function PlacesEditor({
             <button
               onClick={save}
               disabled={pending || !draft.name.trim()}
-              className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900"
+              className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-stone-950 disabled:opacity-50 hover:bg-accent/85"
             >
               {pending ? "Saving…" : "Save place"}
             </button>

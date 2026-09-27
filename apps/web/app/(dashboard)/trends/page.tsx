@@ -80,7 +80,7 @@ export default async function TrendsPage({
               key={m}
               href={href(m, range)}
               aria-current={m === metric ? "true" : undefined}
-              className="shrink-0 rounded-full bg-white px-3.5 py-2 text-sm font-medium ring-1 ring-stone-200 transition hover:bg-stone-100 aria-[current=true]:bg-stone-900 aria-[current=true]:text-white aria-[current=true]:ring-stone-900 dark:bg-stone-900 dark:ring-stone-800 dark:hover:bg-stone-800 dark:aria-[current=true]:bg-stone-100 dark:aria-[current=true]:text-stone-900"
+              className="shrink-0 rounded-full bg-white px-3.5 py-2 text-sm font-medium ring-1 ring-stone-200 transition hover:bg-stone-100 aria-[current=true]:bg-accent/15 aria-[current=true]:text-accent aria-[current=true]:ring-accent/50 dark:bg-stone-900 dark:ring-stone-800 dark:hover:bg-stone-800"
             >
               <span aria-hidden>{METRICS[m].emoji}</span> {METRICS[m].label}
             </Link>
@@ -96,7 +96,7 @@ export default async function TrendsPage({
               key={r}
               href={href(metric, r)}
               aria-current={r === range ? "true" : undefined}
-              className="rounded-full px-3.5 py-1.5 text-sm font-medium text-stone-600 aria-[current=true]:bg-white aria-[current=true]:text-stone-900 aria-[current=true]:shadow-sm dark:text-stone-300 dark:aria-[current=true]:bg-stone-950 dark:aria-[current=true]:text-white"
+              className="rounded-full px-3.5 py-1.5 text-sm font-medium text-stone-600 aria-[current=true]:bg-accent/15 aria-[current=true]:text-accent dark:text-stone-300"
             >
               {r === 365 ? "1 year" : `${r} days`}
             </Link>

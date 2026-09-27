@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4">
-      <div className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-sm ring-1 ring-stone-200/70 dark:bg-stone-900 dark:ring-stone-800">
+      <div className="w-full max-w-sm hud-panel p-8">
         <p className="text-4xl" aria-hidden>
           🌿
         </p>
@@ -68,7 +68,7 @@ export default function LoginPage() {
             />
             <button
               disabled={state.kind === "sending"}
-              className="w-full rounded-2xl bg-stone-900 px-4 py-3 font-medium text-white transition hover:bg-stone-800 disabled:opacity-60 dark:bg-stone-100 dark:text-stone-900"
+              className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-stone-950 transition hover:bg-accent/85 disabled:opacity-60"
             >
               {state.kind === "sending" ? "Sending…" : "Email me a link"}
             </button>
