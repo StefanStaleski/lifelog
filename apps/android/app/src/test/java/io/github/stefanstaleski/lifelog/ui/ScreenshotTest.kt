@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
+import io.github.stefanstaleski.lifelog.checkin.CheckinActions
+import io.github.stefanstaleski.lifelog.checkin.CheckinForm
+import io.github.stefanstaleski.lifelog.checkin.CheckinScreen
 import io.github.stefanstaleski.lifelog.sync.DeviceStatus
 import io.github.stefanstaleski.lifelog.ui.common.DeviceChecks
 import io.github.stefanstaleski.lifelog.ui.onboarding.OnboardingActions
@@ -18,6 +21,7 @@ import io.github.stefanstaleski.lifelog.ui.status.StatusScreen
 import io.github.stefanstaleski.lifelog.ui.status.StatusUi
 import io.github.stefanstaleski.lifelog.ui.status.TodaySummary
 import java.time.Instant
+import java.time.LocalDate
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -92,5 +96,20 @@ class ScreenshotTest {
             DeviceChecks(DeviceStatus("0.1.0", usageAccessGranted = true, batteryOptimizationIgnored = false), false),
             OnboardingActions(),
         )
+    }
+
+    @Test fun checkin() = shoot("checkin") {
+        val date = LocalDate.of(2026, 9, 27)
+        CheckinScreen(
+            CheckinForm(date, mood = 4, energy = 2).toggleTag("gym").toggleTag("dog walk"),
+            date,
+            saved = false,
+            CheckinActions(),
+        )
+    }
+
+    @Test fun checkinSaved() = shoot("checkin-saved") {
+        val date = LocalDate.of(2026, 9, 27)
+        CheckinScreen(CheckinForm(date), date, saved = true, CheckinActions())
     }
 }

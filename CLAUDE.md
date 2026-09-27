@@ -38,7 +38,7 @@ pnpm db:generate                      # drizzle-kit: schema.ts → new SQL migra
 pnpm db:reset                         # re-apply all migrations + seed.sql locally
 pnpm db:test                          # pgTAP tests in supabase/tests (RLS / no public access)
 
-# Android (from apps/android; JDK 17; CI runs `test assembleDebug`)
+# Android (from apps/android; JDK 17; CI runs `test assembleDebug lintDebug`)
 ./gradlew test assembleDebug          # JVM unit tests + debug APK
 ./gradlew installDebug                # to the S24 over USB
 adb reverse tcp:3000 tcp:3000         # phone reaches local `pnpm --filter web dev` at localhost:3000
