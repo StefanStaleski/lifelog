@@ -19,11 +19,19 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             Lifelog
           </span>
           <TopNav />
-          <form action="/auth/signout" method="post">
-            <button className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent">
-              Sign out
-            </button>
-          </form>
+          <div className="flex items-center gap-1">
+            <a
+              href="/profile"
+              className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent"
+            >
+              Profile
+            </a>
+            <form action="/auth/signout" method="post">
+              <button className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent">
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 pt-6 pb-28 sm:pb-12">{children}</main>

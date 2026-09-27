@@ -140,3 +140,12 @@ body::after {
 .hud-map .leaflet-control-attribution a {
   @apply text-accent;
 }
+
+@keyframes portrait-scan {
+  from {
+    top: -4rem;
+  }
+  to {
+    top: 100%;
+  }
+}
