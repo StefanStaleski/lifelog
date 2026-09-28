@@ -1,0 +1,13 @@
+{
+  "id": "13fb0a0c-2f03-475d-b319-86d95173839f",
+  "type": "call",
+  "occurred_at": "2026-09-28T16:12:40Z",
+  "ended_at": "2026-09-28T16:12:50Z",
+  "device_id": "s24",
+  "payload": {
+    "direction": "incoming",
+    "duration_s": 10,
+    "contact_hash": "+38970123456",
+    "contact_name": null
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "f0576840-9aa7-4ee1-8196-cf5d4c96956f",
+  "type": "messages",
+  "occurred_at": "2026-09-28T18:00:00Z",
+  "ended_at": "2026-09-28T19:00:00Z",
+  "device_id": "s24",
+  "payload": {
+    "package": "com.whatsapp",
+    "app_label": "WhatsApp",
+    "sender_hash": "325acbf8373a7a95bb312da3475aed16965fd8ad091c8722be023439ab6d3635",
+    "sender_name": "Marko",
+    "conversation": "Football Thursday",
+    "count": 3
+  }
+}

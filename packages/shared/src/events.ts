@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 /**
- * Wire contract for events sent by the phone to `POST /api/v1/events/batch`.
+ * Wire contract for events sent by the phone (and the laptop's desktop collector) to
+ * `POST /api/v1/events/batch`.
  * Kotlin models in apps/android must match; both sides test against `fixtures/events`.
  */
 
@@ -204,6 +205,134 @@ export const NotificationsEventSchema = z
     }
   });
 
+/**
+ * Hex HMAC-SHA256 keyed with `contact_salt` from `GET /api/v1/config`: of the E.164 number
+ * (default region MK) for `contact_hash`, of `package + "|" + sender_name` for `sender_hash`.
+ */
+const hmacHex = z.string().regex(/^[0-9a-f]{64}$/, "lowercase hex HMAC-SHA256");
+
+/** A display name from the phone's contacts or a messaging notification; never message text. */
+const personName = z.string().trim().min(1).max(255);
+
+/** Bare hostname: lowercase, no scheme, port, path or query. */
+const hostname = z
+  .string()
+  .max(253)
+  .regex(/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/, "bare hostname");
+
+/**
+ * Laptop (ActivityWatch): how long one app was focused and not AFK within one complete 30-min
+ * UTC window. Browsers report one row per hostname; never window titles, URLs or paths.
+ */
+export const DesktopUsageEventSchema = z
+  .strictObject({
+    ...envelope,
+    type: z.literal("desktop_usage"),
+    ended_at: utcInstant,
+    payload: z.strictObject({
+      /** Application name as ActivityWatch reports it, e.g. "code", "firefox". */
+      app: z.string().min(1).max(255),
+      /** Browser tab hostname, null outside the browser. */
+      host: hostname.nullable(),
+      active_ms: z.int().nonnegative().max(1_800_000),
+    }),
+  })
+  .check((ctx) => {
+    const start = Date.parse(ctx.value.occurred_at);
+    if (start % 1_800_000 !== 0 || Date.parse(ctx.value.ended_at) - start !== 1_800_000) {
+      ctx.issues.push({
+        code: "custom",
+        message: "desktop_usage must cover exactly one whole 30-minute UTC window",
+        path: ["ended_at"],
+        input: ctx.value.ended_at,
+      });
+    }
+  });
+
+/** Laptop sync service self-report, sent every run; feeds `source_health` source `desktop`. */
+export const DesktopHeartbeatEventSchema = z.strictObject({
+  ...envelope,
+  type: z.literal("desktop_heartbeat"),
+  payload: z.strictObject({
+    client_version: z.string().min(1).max(32),
+    /** ActivityWatch server version, null when it could not be reached. */
+    aw_version: z.string().min(1).max(32).nullable(),
+    aw_reachable: z.boolean(),
+    pending_count: z.int().nonnegative(),
+  }),
+});
+
+export const CALL_DIRECTIONS = ["incoming", "outgoing", "missed", "rejected"] as const;
+
+/** One phone call from the call log: occurred_at = start, ended_at = start + duration_s. */
+export const CallEventSchema = z
+  .strictObject({
+    ...envelope,
+    type: z.literal("call"),
+    ended_at: utcInstant,
+    payload: z.strictObject({
+      direction: z.enum(CALL_DIRECTIONS),
+      duration_s: z.int().nonnegative().max(86_400),
+      contact_hash: hmacHex,
+      /** Name from the phone's contacts; null for unknown numbers. */
+      contact_name: personName.nullable(),
+    }),
+  })
+  .check((ctx) => {
+    const ms = Date.parse(ctx.value.ended_at) - Date.parse(ctx.value.occurred_at);
+    if (ms !== ctx.value.payload.duration_s * 1000) {
+      ctx.issues.push({
+        code: "custom",
+        message: "ended_at must be occurred_at + duration_s",
+        path: ["ended_at"],
+        input: ctx.value.ended_at,
+      });
+    }
+  });
+
+/** One SMS sent or received at occurred_at. Never the text. */
+export const SmsEventSchema = z.strictObject({
+  ...envelope,
+  type: z.literal("sms"),
+  payload: z.strictObject({
+    direction: z.enum(["in", "out"]),
+    contact_hash: hmacHex,
+    /** Name from the phone's contacts; null for unknown numbers. */
+    contact_name: personName.nullable(),
+  }),
+});
+
+/**
+ * Messages received from one sender in one messaging app in one finished UTC hour, counted from
+ * notifications (sender and group name only, never the text). A re-sent hour may have grown.
+ */
+export const MessagesEventSchema = z
+  .strictObject({
+    ...envelope,
+    type: z.literal("messages"),
+    ended_at: utcInstant,
+    payload: z.strictObject({
+      package: z.string().min(1).max(255),
+      app_label: z.string().min(1).max(255),
+      sender_hash: hmacHex,
+      sender_name: personName,
+      /** Group conversation name, null for a direct message. */
+      conversation: z.string().trim().min(1).max(255).nullable(),
+      count: z.int().positive().max(10_000),
+    }),
+  })
+  .check((ctx) => {
+    const start = Date.parse(ctx.value.occurred_at);
+    if (start % 3_600_000 !== 0 || Date.parse(ctx.value.ended_at) - start !== 3_600_000) {
+      ctx.issues.push({
+        code: "custom",
+        message: "messages must cover exactly one whole UTC hour",
+        path: ["ended_at"],
+        input: ctx.value.ended_at,
+      });
+    }
+  });
+
 export const EventSchema = z.discriminatedUnion("type", [
   AppUsageEventSchema,
   UnlockEventSchema,
@@ -215,6 +344,11 @@ export const EventSchema = z.discriminatedUnion("type", [
   GeofenceEventSchema,
   StayEventSchema,
   NotificationsEventSchema,
+  DesktopUsageEventSchema,
+  DesktopHeartbeatEventSchema,
+  CallEventSchema,
+  SmsEventSchema,
+  MessagesEventSchema,
 ]);
 
 export type Event = z.infer<typeof EventSchema>;
@@ -229,8 +363,19 @@ export type ScreenEvent = z.infer<typeof ScreenEventSchema>;
 export type GeofenceEvent = z.infer<typeof GeofenceEventSchema>;
 export type StayEvent = z.infer<typeof StayEventSchema>;
 export type NotificationsEvent = z.infer<typeof NotificationsEventSchema>;
+export type DesktopUsageEvent = z.infer<typeof DesktopUsageEventSchema>;
+export type DesktopHeartbeatEvent = z.infer<typeof DesktopHeartbeatEventSchema>;
+export type CallEvent = z.infer<typeof CallEventSchema>;
+export type SmsEvent = z.infer<typeof SmsEventSchema>;
+export type MessagesEvent = z.infer<typeof MessagesEventSchema>;
 
 export const EVENT_TYPES = EventSchema.options.map((o) => o.shape.type.value) as EventType[];
+
+/** The only event types a request authorised with the laptop's `DESKTOP_TOKEN` may send. */
+export const DESKTOP_EVENT_TYPES = [
+  "desktop_usage",
+  "desktop_heartbeat",
+] as const satisfies readonly EventType[];
 
 /**
  * Batch body. Events stay `unknown` here so the ingest can validate each one with

@@ -1,0 +1,12 @@
+{
+  "id": "79b71ecf-7f56-4d94-8fb0-1943a490fa2e",
+  "type": "sms",
+  "occurred_at": "2026-09-28T12:44:03Z",
+  "device_id": "s24",
+  "payload": {
+    "direction": "in",
+    "contact_hash": "df6ed70d94ff19b3f847f268e6c602753972025b400638f34762207cac3f3347",
+    "contact_name": "Ana Example",
+    "body": "see you at 8"
+  }
+}

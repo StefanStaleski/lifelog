@@ -1,0 +1,8 @@
+{
+  "id": "bf9d1c75-26cf-4063-a522-bea211318393",
+  "type": "desktop_usage",
+  "occurred_at": "2026-09-28T07:45:00Z",
+  "ended_at": "2026-09-28T08:15:00Z",
+  "device_id": "laptop",
+  "payload": { "app": "code", "host": null, "active_ms": 60000 }
+}

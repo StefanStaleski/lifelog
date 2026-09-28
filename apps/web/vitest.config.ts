@@ -12,6 +12,7 @@ export default defineConfig({
       DATABASE_URL:
         process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:55322/postgres",
       DEVICE_TOKEN: "test-device-token",
+      DESKTOP_TOKEN: "test-desktop-token",
     },
   },
 });

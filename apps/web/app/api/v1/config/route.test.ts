@@ -42,4 +42,15 @@ describe("GET /api/v1/config", () => {
       },
     ]);
   });
+
+  it("serves the same contact salt every time", async () => {
+    const [a, b] = await Promise.all([get("test-device-token"), get("test-device-token")]);
+    const salt = ConfigResponseSchema.parse(await a.json()).contact_salt;
+    expect(salt).toMatch(/^[0-9a-f]{64}$/);
+    expect(ConfigResponseSchema.parse(await b.json()).contact_salt).toBe(salt);
+  });
+
+  it("is not served to the desktop token", async () => {
+    expect((await get("test-desktop-token")).status).toBe(401);
+  });
 });

@@ -96,3 +96,45 @@ data class NotificationsPayload(
     @SerialName("app_label") val appLabel: String,
     val count: Int,
 )
+
+/*
+ * Hashes: lowercase hex HMAC-SHA256 keyed with `contact_salt` from GET /api/v1/config.
+ * contact_hash = HMAC(salt, E.164 number, default region MK); sender_hash = HMAC(salt, "$package|$senderName").
+ */
+
+/**
+ * One call from the call log; the event's occurred_at is the start and ended_at = start + [durationS].
+ * [direction]: incoming, outgoing, missed, rejected.
+ */
+@Serializable
+data class CallPayload(
+    val direction: String,
+    @SerialName("duration_s") val durationS: Int,
+    @SerialName("contact_hash") val contactHash: String,
+    /** Name from the phone's contacts; null for unknown numbers. */
+    @SerialName("contact_name") val contactName: String?,
+)
+
+/** One SMS sent or received at occurred_at. Never the text. [direction]: in, out. */
+@Serializable
+data class SmsPayload(
+    val direction: String,
+    @SerialName("contact_hash") val contactHash: String,
+    @SerialName("contact_name") val contactName: String?,
+)
+
+/**
+ * Messages received from one sender in one messaging app in one finished UTC hour, counted from
+ * notifications (never the text). One event per hour × package × sender; the server keeps the
+ * larger count when an hour is re-sent.
+ */
+@Serializable
+data class MessagesPayload(
+    @SerialName("package") val packageName: String,
+    @SerialName("app_label") val appLabel: String,
+    @SerialName("sender_hash") val senderHash: String,
+    @SerialName("sender_name") val senderName: String,
+    /** Group conversation name, null for a direct message. */
+    val conversation: String?,
+    val count: Int,
+)

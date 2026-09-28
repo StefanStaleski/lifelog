@@ -1,0 +1,12 @@
+{
+  "id": "f9360908-6857-4237-934c-0cacf5913d4d",
+  "type": "desktop_heartbeat",
+  "occurred_at": "2026-09-28T08:01:12Z",
+  "device_id": "laptop",
+  "payload": {
+    "client_version": "0.1.0",
+    "aw_version": "v0.13.2",
+    "aw_reachable": true,
+    "pending_count": 0
+  }
+}

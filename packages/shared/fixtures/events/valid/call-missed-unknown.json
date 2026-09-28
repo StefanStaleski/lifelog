@@ -1,0 +1,13 @@
+{
+  "id": "7dea6261-dac5-4bac-867d-a6ed7283eac9",
+  "type": "call",
+  "occurred_at": "2026-09-28T10:02:11Z",
+  "ended_at": "2026-09-28T10:02:11Z",
+  "device_id": "s24",
+  "payload": {
+    "direction": "missed",
+    "duration_s": 0,
+    "contact_hash": "784574d77c4e5dc70639e198950405f9cc28743432407c03df6e6c23f5728c72",
+    "contact_name": null
+  }
+}

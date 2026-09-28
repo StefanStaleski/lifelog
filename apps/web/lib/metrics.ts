@@ -39,6 +39,39 @@ export const METRICS = {
     better: null,
     emoji: "📍",
   },
+  // Phase 5: work is measured from activity (laptop + work-tagged phone apps), not place.
+  worked_min: { label: "Worked", unit: "min", format: "duration", better: null, emoji: "🧑‍💻" },
+  worked_after_hours_min: {
+    label: "After-hours work",
+    unit: "min",
+    format: "duration",
+    better: "down",
+    emoji: "🌆",
+  },
+  desktop_min: { label: "Laptop time", unit: "min", format: "duration", better: null, emoji: "💻" },
+  wfh_min: {
+    label: "Worked from home",
+    unit: "min",
+    format: "duration",
+    better: null,
+    emoji: "🏡",
+  },
+  calls: { label: "Calls", unit: "count", format: "count", better: null, emoji: "📞" },
+  call_min: { label: "Time on calls", unit: "min", format: "duration", better: null, emoji: "☎️" },
+  people_contacted: {
+    label: "People contacted",
+    unit: "count",
+    format: "count",
+    better: "up",
+    emoji: "👥",
+  },
+  messages_received: {
+    label: "Messages received",
+    unit: "count",
+    format: "count",
+    better: null,
+    emoji: "💬",
+  },
 } as const;
 
 export type MetricName = keyof typeof METRICS;
@@ -60,6 +93,14 @@ export const METRIC_COLUMNS = {
   work_min: dailySummary.workMin,
   gym_min: dailySummary.gymMin,
   other_places_min: dailySummary.otherPlacesMin,
+  worked_min: dailySummary.workedMin,
+  worked_after_hours_min: dailySummary.workedAfterHoursMin,
+  desktop_min: dailySummary.desktopMin,
+  wfh_min: dailySummary.wfhMin,
+  calls: dailySummary.calls,
+  call_min: dailySummary.callMin,
+  people_contacted: dailySummary.peopleContacted,
+  messages_received: dailySummary.messagesReceived,
 } satisfies Record<MetricName, unknown>;
 
 export type DayRow = { date: string } & Record<MetricName, number | null>;
@@ -103,6 +144,14 @@ export async function getDays(db: Db, from: string, to: string): Promise<DayRow[
     work_min: r.workMin,
     gym_min: r.gymMin,
     other_places_min: r.otherPlacesMin,
+    worked_min: r.workedMin,
+    worked_after_hours_min: r.workedAfterHoursMin,
+    desktop_min: r.desktopMin,
+    wfh_min: r.wfhMin,
+    calls: r.calls,
+    call_min: r.callMin,
+    people_contacted: r.peopleContacted,
+    messages_received: r.messagesReceived,
   }));
 }
 

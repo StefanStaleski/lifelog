@@ -1,0 +1,11 @@
+{
+  "id": "7e3955bd-151e-404d-92f8-4edee415842a",
+  "type": "sms",
+  "occurred_at": "2026-09-28T12:44:03Z",
+  "device_id": "s24",
+  "payload": {
+    "direction": "in",
+    "contact_hash": "df6ed70d94ff19b3f847f268e6c602753972025b400638f34762207cac3f3347",
+    "contact_name": "Ana Example"
+  }
+}

@@ -1,6 +1,9 @@
 package io.github.stefanstaleski.lifelog.core.data.model
 
-/** Event types of the wire contract (packages/shared/src/events.ts). */
+/**
+ * Event types the phone sends (packages/shared/src/events.ts). The laptop-only types
+ * (`desktop_usage`, `desktop_heartbeat`) are not listed: the phone never sends them.
+ */
 enum class EventType(val wire: String) {
     APP_USAGE("app_usage"),
     UNLOCK("unlock"),
@@ -12,6 +15,9 @@ enum class EventType(val wire: String) {
     GEOFENCE("geofence"),
     STAY("stay"),
     NOTIFICATIONS("notifications"),
+    CALL("call"),
+    SMS("sms"),
+    MESSAGES("messages"),
     ;
 
     companion object {

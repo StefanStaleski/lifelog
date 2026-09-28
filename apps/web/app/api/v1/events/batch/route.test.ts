@@ -88,6 +88,35 @@ describe("POST /api/v1/events/batch", () => {
     expect((await post({ events: tooMany })).status).toBe(413);
   });
 
+  it("accepts only desktop events with the desktop token", async () => {
+    const res = await post(
+      { events: [fx.desktop_usage, fx.unlock, fx.desktop_heartbeat, fx.call] },
+      { token: "test-desktop-token" },
+    );
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      accepted: 2,
+      duplicates: 0,
+      rejected: [
+        { index: 1, id: fx.unlock!.id, error: 'type: "unlock" is not accepted with this token' },
+        { index: 3, id: fx.call!.id, error: 'type: "call" is not accepted with this token' },
+      ],
+    });
+    const stored = await getDb().select({ type: events.type }).from(events);
+    expect(stored.map((e) => e.type).sort()).toEqual(["desktop_heartbeat", "desktop_usage"]);
+  });
+
+  it("rejects the desktop token when DESKTOP_TOKEN is unset", async () => {
+    const saved = process.env.DESKTOP_TOKEN;
+    delete process.env.DESKTOP_TOKEN;
+    try {
+      const res = await post({ events: [fx.desktop_usage] }, { token: "test-desktop-token" });
+      expect(res.status).toBe(401);
+    } finally {
+      process.env.DESKTOP_TOKEN = saved;
+    }
+  });
+
   it("tracks the latest event per source without moving backwards", async () => {
     const later = { ...fx.unlock, id: randomUUID(), occurred_at: "2026-09-28T07:00:00Z" };
     await post({ events: [later] });

@@ -1,4 +1,4 @@
-import { type Event, EventSchema } from "@lifelog/shared";
+import { type Event, EventSchema, type EventType } from "@lifelog/shared";
 import { events, sourceHealth } from "@lifelog/shared/db";
 import { sql } from "drizzle-orm";
 import type { Db } from "./db";
@@ -21,13 +21,20 @@ export async function ingestBatch(
   db: Db,
   rawEvents: unknown[],
   now = new Date(),
+  { allowedTypes }: { allowedTypes?: readonly EventType[] } = {},
 ): Promise<IngestResult> {
   const valid: Event[] = [];
   const rejected: RejectedEvent[] = [];
 
   rawEvents.forEach((raw, index) => {
     const parsed = EventSchema.safeParse(raw);
-    if (parsed.success) {
+    if (parsed.success && allowedTypes && !allowedTypes.includes(parsed.data.type)) {
+      rejected.push({
+        index,
+        id: parsed.data.id,
+        error: `type: "${parsed.data.type}" is not accepted with this token`,
+      });
+    } else if (parsed.success) {
       valid.push(parsed.data);
     } else {
       const id = (raw as { id?: unknown } | null)?.id;

@@ -1,0 +1,13 @@
+{
+  "id": "4534291c-40bf-4efa-95c5-2bee49510d52",
+  "type": "desktop_usage",
+  "occurred_at": "2026-09-28T07:30:00Z",
+  "ended_at": "2026-09-28T08:00:00Z",
+  "device_id": "laptop",
+  "payload": {
+    "app": "code",
+    "host": null,
+    "active_ms": 60000,
+    "title": "salary-negotiation.md - Visual Studio Code"
+  }
+}
