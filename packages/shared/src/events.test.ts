@@ -32,6 +32,14 @@ describe("EventSchema fixtures", () => {
     "stay-precise-coordinates.json": "payload.lat",
     "activity-unknown-kind.json": "payload.activity",
     "notifications-with-text.json": "payload",
+    "desktop_usage-url-as-host.json": "payload.host",
+    "desktop_usage-not-half-hour.json": "ended_at",
+    "desktop_usage-with-title.json": "payload",
+    "call-duration-mismatch.json": "ended_at",
+    "call-raw-number.json": "payload.contact_hash",
+    "sms-with-body.json": "payload",
+    "messages-not-whole-hour.json": "ended_at",
+    "messages-with-text.json": "payload",
   };
 
   it.each(load("invalid"))("rejects invalid/%s", (name, json) => {

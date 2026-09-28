@@ -3,8 +3,8 @@
  * through the real ingest pipeline. For working on the dashboard: `pnpm --filter web seed`.
  * Refuses to touch anything but a local database. Deterministic (seeded), so screenshots repeat.
  */
-import { randomUUID } from "node:crypto";
-import { contextDaily, places } from "@lifelog/shared/db";
+import { createHmac, randomUUID } from "node:crypto";
+import { appTags, contextDaily, places, serverSecrets } from "@lifelog/shared/db";
 import { sql } from "drizzle-orm";
 import { closeDb, getDb } from "@/lib/db";
 import { ingestBatch } from "@/lib/ingest";
@@ -40,6 +40,57 @@ const APPS = [
   ["com.slack", "Slack", "productivity", 0.6],
 ] as const;
 
+// Laptop (ActivityWatch): [app, host, weight] for work hours and for evenings.
+const WORK_DESKTOP = [
+  ["code", null, 3],
+  ["firefox", "github.com", 1.2],
+  ["firefox", "docs.google.com", 0.6],
+  ["firefox", "stackoverflow.com", 0.5],
+  ["slack", null, 0.8],
+  ["gnome-terminal", null, 1],
+] as const;
+const EVENING_DESKTOP = [
+  ["firefox", "youtube.com", 2],
+  ["firefox", "reddit.com", 1],
+  ["spotify", null, 0.6],
+  ["code", null, 0.7], // after-hours work
+] as const;
+const WORK_TAGS = [
+  ["desktop", "code", true],
+  ["desktop", "slack", true],
+  ["desktop", "gnome-terminal", true],
+  ["desktop", "spotify", false],
+  ["host", "github.com", true],
+  ["host", "docs.google.com", true],
+  ["host", "stackoverflow.com", true],
+  ["host", "youtube.com", false],
+  ["host", "reddit.com", false],
+  ["phone", "com.slack", true],
+  ["phone", "com.google.android.gm", true],
+  ["phone", "com.instagram.android", false],
+] as const;
+// Fake people (numbers are never real: +389 70 000 0xx). null name = not in contacts.
+const CONTACTS = [
+  ["+38970000001", "Mom", 3],
+  ["+38970000002", "Ana", 2],
+  ["+38970000003", "Marko", 1],
+  ["+38970000004", "Elena", 0.6],
+  ["+38970000005", null, 0.4],
+] as const;
+const SENDERS = [
+  ["com.whatsapp", "WhatsApp", "Ana", null, 2],
+  ["com.whatsapp", "WhatsApp", "Marko", "Football Thursday", 1.5],
+  ["com.whatsapp", "WhatsApp", "Mom", null, 1],
+  ["com.facebook.orca", "Messenger", "Elena", null, 0.8],
+  ["org.telegram.messenger", "Telegram", "Dev team", null, 0.6],
+] as const;
+const weighted = <T extends readonly unknown[]>(xs: readonly T[]): T => {
+  const total = xs.reduce((a, x) => a + (x.at(-1) as number), 0);
+  let r = rand() * total;
+  for (const x of xs) if ((r -= x.at(-1) as number) <= 0) return x;
+  return xs[xs.length - 1]!;
+};
+
 type Ev = Record<string, unknown>;
 const ev = (type: string, at: Date, payload: object, ended?: Date): Ev => ({
   id: randomUUID(),
@@ -55,9 +106,17 @@ const at = (dayStart: Date, hour: number) =>
 
 async function main() {
   const db = getDb();
+  // server_secrets (the contact salt) and work_settings are settings, not data: never truncated.
   await db.execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily, dismissed_suggestions`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily, dismissed_suggestions, app_usage_windows, desktop_usage, calls, sms_messages, message_counts, people, app_tags`,
   );
+  const [secrets] = await db.select().from(serverSecrets);
+  if (!secrets) throw new Error("server_secrets is empty: run pnpm db:reset");
+  const hmac = (value: string) =>
+    createHmac("sha256", secrets.contactSalt).update(value).digest("hex");
+  await db
+    .insert(appTags)
+    .values(WORK_TAGS.map(([source, key, isWork]) => ({ source, key, isWork })));
   const [home, work, gym] = await db
     .insert(places)
     .values([
@@ -164,22 +223,24 @@ async function main() {
     const fence = (id: string, h: number, t: "enter" | "exit") =>
       push(h, () => ev("geofence", at(day, h), { place_id: id, transition: t }));
     fence(home!.id, 0.01, "enter");
+    // Works from home; the office only on Wednesdays, the gym after work on Mondays and Fridays.
     if (workday) {
-      const leave = between(8.1, 8.6);
       const back = between(17, 17.8);
-      fence(home!.id, leave, "exit");
-      fence(work!.id, leave + 0.4, "enter");
-      fence(work!.id, back, "exit");
-      if (weekday % 2 === 0) {
-        fence(gym!.id, back + 0.3, "enter");
-        fence(gym!.id, back + 1.5, "exit");
-        fence(home!.id, back + 1.8, "enter");
-      } else {
+      if (weekday === 2) {
+        const leave = between(8.1, 8.6);
+        fence(home!.id, leave, "exit");
+        fence(work!.id, leave + 0.4, "enter");
+        fence(work!.id, back, "exit");
         fence(home!.id, back + 0.4, "enter");
+        push(wake + 0.8, () =>
+          ev("activity", at(day, 8.2), { activity: "in_vehicle", transition: "enter" }),
+        );
+      } else if (weekday % 2 === 0) {
+        fence(home!.id, back + 0.2, "exit");
+        fence(gym!.id, back + 0.5, "enter");
+        fence(gym!.id, back + 1.7, "exit");
+        fence(home!.id, back + 2, "enter");
       }
-      push(wake + 0.8, () =>
-        ev("activity", at(day, 8.2), { activity: "in_vehicle", transition: "enter" }),
-      );
     } else if (rand() < 0.7) {
       const out = between(11, 14);
       fence(home!.id, out, "exit");
@@ -239,6 +300,106 @@ async function main() {
           background_location_granted: true,
         }),
       );
+    }
+
+    // Laptop: work hours on workdays (earlier/later some days), evenings for fun or more work
+    const laptopEvening = rand() < (workday ? 0.55 : 0.4);
+    const workStart = between(8.5, 9.5);
+    const workEnd = between(16.8, 18);
+    for (let w = 16; w < 48; w++) {
+      const h = w / 2;
+      if (h + 0.5 > until) break;
+      const inWork = workday && h + 0.5 > workStart && h < workEnd;
+      const evening = laptopEvening && h >= 19.5 && h < bed - 0.5;
+      if (!(inWork ? rand() < 0.88 : evening && rand() < 0.6)) continue;
+      const pool: readonly (readonly [string, string | null, number])[] = inWork
+        ? WORK_DESKTOP
+        : EVENING_DESKTOP;
+      let left = inWork ? between(18, 29) : between(8, 28);
+      const start = at(day, h);
+      const rows = new Map<string, [string, string | null, number]>();
+      while (left >= 1) {
+        const [app, host] = weighted(pool);
+        const m = Math.min(left, between(3, 20));
+        const key = `${app}|${host}`;
+        rows.set(key, [app, host, (rows.get(key)?.[2] ?? 0) + m]);
+        left -= m;
+      }
+      for (const [app, host, m] of rows.values()) {
+        events.push(
+          ev(
+            "desktop_usage",
+            start,
+            { app, host, active_ms: Math.round(m * 60_000) },
+            new Date(start.getTime() + 1_800_000),
+          ),
+        );
+      }
+      events.push(
+        ev("desktop_heartbeat", new Date(start.getTime() + 1_830_000), {
+          client_version: "0.1.0",
+          aw_version: "v0.13.2",
+          aw_reachable: true,
+          pending_count: 0,
+        }),
+      );
+    }
+
+    // Calls and SMS with a few (fake) people; names from "contacts", unknown numbers hash only
+    const callCount = Math.floor(between(0, workday ? 3.5 : 4.5));
+    for (let i = 0; i < callCount; i++) {
+      const [number, name] = weighted(CONTACTS);
+      const h = between(wake + 0.5, bed - 0.5);
+      const r = rand();
+      const direction =
+        r < 0.45 ? "incoming" : r < 0.85 ? "outgoing" : r < 0.95 ? "missed" : "rejected";
+      const duration =
+        direction === "incoming" || direction === "outgoing" ? Math.round(between(20, 900)) : 0;
+      const start = at(day, h);
+      push(h + duration / 3600, () =>
+        ev(
+          "call",
+          start,
+          { direction, duration_s: duration, contact_hash: hmac(number), contact_name: name },
+          new Date(start.getTime() + duration * 1000),
+        ),
+      );
+    }
+    const smsCount = Math.floor(between(0, 2.2));
+    for (let i = 0; i < smsCount; i++) {
+      const [number, name] = weighted(CONTACTS);
+      const h = between(wake + 0.5, bed - 0.5);
+      push(h, () =>
+        ev("sms", at(day, h), {
+          direction: rand() < 0.6 ? "in" : "out",
+          contact_hash: hmac(number),
+          contact_name: name,
+        }),
+      );
+    }
+
+    // Messaging apps: messages received per sender per finished hour (from notifications)
+    for (let h = Math.ceil(wake); h < Math.floor(bed); h++) {
+      if (h + 1 > until) break;
+      for (const [pkg, label, sender, conversation, weight] of SENDERS) {
+        if (rand() > weight * 0.18) continue;
+        const start = at(day, h);
+        events.push(
+          ev(
+            "messages",
+            start,
+            {
+              package: pkg,
+              app_label: label,
+              sender_hash: hmac(`${pkg}|${sender}`),
+              sender_name: sender,
+              conversation,
+              count: 1 + Math.floor(rand() * 5),
+            },
+            new Date(start.getTime() + 3_600_000),
+          ),
+        );
+      }
     }
 
     // Weather: a mild September with the odd rainy day

@@ -1,0 +1,8 @@
+{
+  "id": "10852e18-03ea-47bc-a9de-49282eb6a93d",
+  "type": "desktop_usage",
+  "occurred_at": "2026-09-28T07:30:00Z",
+  "ended_at": "2026-09-28T08:00:00Z",
+  "device_id": "laptop",
+  "payload": { "app": "firefox", "host": "https://github.com/search?q=secret", "active_ms": 60000 }
+}

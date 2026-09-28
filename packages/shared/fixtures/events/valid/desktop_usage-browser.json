@@ -1,0 +1,8 @@
+{
+  "id": "ab7ccb2e-a349-42c0-ad97-7e78eb96fe34",
+  "type": "desktop_usage",
+  "occurred_at": "2026-09-28T07:30:00Z",
+  "ended_at": "2026-09-28T08:00:00Z",
+  "device_id": "laptop",
+  "payload": { "app": "firefox", "host": "github.com", "active_ms": 420000 }
+}

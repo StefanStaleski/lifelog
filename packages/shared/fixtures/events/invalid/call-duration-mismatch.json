@@ -1,0 +1,13 @@
+{
+  "id": "d7779ace-0190-4c1e-93b2-c74fd55c5c09",
+  "type": "call",
+  "occurred_at": "2026-09-28T16:12:40Z",
+  "ended_at": "2026-09-28T16:30:00Z",
+  "device_id": "s24",
+  "payload": {
+    "direction": "incoming",
+    "duration_s": 385,
+    "contact_hash": "df6ed70d94ff19b3f847f268e6c602753972025b400638f34762207cac3f3347",
+    "contact_name": "Ana Example"
+  }
+}

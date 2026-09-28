@@ -51,6 +51,11 @@ data class ConfigResponse(
     /** Local time, HH:mm. */
     @SerialName("checkin_time") val checkinTime: String,
     val places: List<Place>,
+    /**
+     * HMAC-SHA256 key (64 hex) for contact and sender hashes; never changes. Always sent by the
+     * server; nullable only so an app update can talk to a server that predates it.
+     */
+    @SerialName("contact_salt") val contactSalt: String? = null,
 )
 
 @Serializable

@@ -1,0 +1,16 @@
+{
+  "id": "32541578-ea4b-4b2d-8bcf-3247c69c607e",
+  "type": "messages",
+  "occurred_at": "2026-09-28T18:00:00Z",
+  "ended_at": "2026-09-28T19:00:00Z",
+  "device_id": "s24",
+  "payload": {
+    "package": "org.telegram.messenger",
+    "app_label": "Telegram",
+    "sender_hash": "18f2488e52ee5115e99f42ed34bd1279a89ec0dd0497c66b780670fe01713c41",
+    "sender_name": "Ana",
+    "conversation": null,
+    "count": 1,
+    "text": "running late"
+  }
+}

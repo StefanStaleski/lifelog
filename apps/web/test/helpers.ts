@@ -16,9 +16,16 @@ export function validFixtures(): Record<string, Record<string, unknown>> {
   );
 }
 
+/**
+ * Empties every data table and puts the work schedule back to its defaults. `server_secrets`
+ * (the contact salt) is never touched: it must not change.
+ */
 export async function resetDb(): Promise<void> {
   await getDb().execute(
-    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily, dismissed_suggestions, portrait_frames`,
+    sql`truncate events, app_usage, unlocks, checkins, source_health, daily_summary, places, visits, location_stays, steps_hourly, activity_segments, screen_events, sleep_estimates, notifications_hourly, context_daily, dismissed_suggestions, portrait_frames, app_usage_windows, desktop_usage, calls, sms_messages, message_counts, people, app_tags`,
+  );
+  await getDb().execute(
+    sql`update work_settings set days = default, start_local = default, end_local = default, untagged_desktop_is_work = default`,
   );
 }
 

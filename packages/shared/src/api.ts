@@ -41,6 +41,11 @@ export const ConfigResponseSchema = z.strictObject({
   /** Local time of the daily check-in reminder, HH:mm. */
   checkin_time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
   places: z.array(PlaceSchema),
+  /**
+   * HMAC-SHA256 key for `contact_hash` / `sender_hash` (64 hex chars). Created once on the
+   * server and never changes, so the same person always hashes the same.
+   */
+  contact_salt: z.string().regex(/^[0-9a-f]{64}$/),
 });
 export type ConfigResponse = z.infer<typeof ConfigResponseSchema>;
 
@@ -57,6 +62,8 @@ export const STALE_AFTER_MIN: Record<string, number> = {
   activity: 24 * 60,
   checkin: 48 * 60,
   notifications: 24 * 60,
+  /** Laptop sync service (desktop_heartbeat); the laptop is off at night and some weekends. */
+  desktop: 48 * 60,
   // geofence / stay: no allowance, a day at home without leaving is normal
 };
 

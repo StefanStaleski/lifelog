@@ -19,4 +19,11 @@ describe("API response fixtures", () => {
     const config = { ...(load("config-response.json") as object), checkin_time: "24:00" };
     expect(ConfigResponseSchema.safeParse(config).success).toBe(false);
   });
+
+  it("requires a 64-hex contact salt", () => {
+    const rest = load("config-response.json") as Record<string, unknown>;
+    delete rest.contact_salt;
+    expect(ConfigResponseSchema.safeParse(rest).success).toBe(false);
+    expect(ConfigResponseSchema.safeParse({ ...rest, contact_salt: "abc" }).success).toBe(false);
+  });
 });
