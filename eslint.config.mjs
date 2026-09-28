@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/.next/**", "apps/android/**"],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/.next/**", "apps/android/**", ".claude/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
