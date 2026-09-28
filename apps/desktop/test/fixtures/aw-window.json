@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2026-09-28T09:55:00.000000+00:00",
+    "duration": 600,
+    "data": {
+      "app": "Code",
+      "title": "secret-project/main.ts - Visual Studio Code"
+    }
+  },
+  {
+    "id": 2,
+    "timestamp": "2026-09-28T10:05:00.000000+00:00",
+    "duration": 0,
+    "data": {
+      "app": "Gnome-terminal",
+      "title": "⠋ ssh prod-db.internal"
+    }
+  },
+  {
+    "id": 3,
+    "timestamp": "2026-09-28T10:05:01.000000+00:00",
+    "duration": 0,
+    "data": {
+      "app": "Gnome-terminal",
+      "title": "⠙ ssh prod-db.internal"
+    }
+  },
+  {
+    "id": 4,
+    "timestamp": "2026-09-28T10:05:02.000000+00:00",
+    "duration": 0,
+    "data": {
+      "app": "Gnome-terminal",
+      "title": "⠹ ssh prod-db.internal"
+    }
+  },
+  {
+    "id": 5,
+    "timestamp": "2026-09-28T10:05:03.000000+00:00",
+    "duration": 1200,
+    "data": {
+      "app": "firefox",
+      "title": "Bank statement — Mozilla Firefox"
+    }
+  },
+  {
+    "id": 6,
+    "timestamp": "2026-09-28T10:25:03.000000+00:00",
+    "duration": 1197,
+    "data": {
+      "app": "Code",
+      "title": "/home/stefan/diary.md - Visual Studio Code"
+    }
+  },
+  {
+    "id": 7,
+    "timestamp": "2026-09-28T10:50:00.000000+00:00",
+    "duration": 1200,
+    "data": {
+      "app": "Code",
+      "title": "notes.txt - Visual Studio Code"
+    }
+  }
+]

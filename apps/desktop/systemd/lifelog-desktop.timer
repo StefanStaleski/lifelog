@@ -1,0 +1,13 @@
+[Unit]
+Description=Lifelog desktop sync every 30 minutes and after login
+
+[Timer]
+# After login (the user manager starts with the first session) ...
+OnStartupSec=3min
+# ... and a few minutes after each 30-min UTC window closes (the sync waits 5 min for AFK to settle).
+OnCalendar=*-*-* *:07,37:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

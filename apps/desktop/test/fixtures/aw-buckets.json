@@ -1,0 +1,30 @@
+{
+  "aw-watcher-window_laptop-host": {
+    "id": "aw-watcher-window_laptop-host",
+    "created": "2026-09-28T09:00:00+00:00",
+    "type": "currentwindow",
+    "client": "aw-watcher-window",
+    "hostname": "laptop-host"
+  },
+  "aw-watcher-afk_laptop-host": {
+    "id": "aw-watcher-afk_laptop-host",
+    "created": "2026-09-28T09:00:00+00:00",
+    "type": "afkstatus",
+    "client": "aw-watcher-afk",
+    "hostname": "laptop-host"
+  },
+  "aw-watcher-web-firefox_laptop-host": {
+    "id": "aw-watcher-web-firefox_laptop-host",
+    "created": "2026-09-28T09:00:00+00:00",
+    "type": "web.tab.current",
+    "client": "aw-client-web",
+    "hostname": "laptop-host"
+  },
+  "aw-watcher-window_other-pc": {
+    "id": "aw-watcher-window_other-pc",
+    "created": "2026-01-01T00:00:00+00:00",
+    "type": "currentwindow",
+    "client": "aw-watcher-window",
+    "hostname": "other-pc"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@lifelog/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Laptop collector: ActivityWatch -> desktop_usage events -> Lifelog ingest API",
+  "bin": {
+    "lifelog-desktop": "./dist/lifelog-desktop.mjs"
+  },
+  "scripts": {
+    "build": "esbuild src/cli.ts --bundle --platform=node --target=node22 --format=esm --outfile=dist/lifelog-desktop.mjs --log-level=warning",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "sync": "tsx src/cli.ts sync"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.2"
+  }
+}
