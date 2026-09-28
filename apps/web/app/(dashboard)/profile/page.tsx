@@ -1,3 +1,4 @@
+import { PasswordForm } from "@/components/PasswordForm";
 import { Portrait360 } from "@/components/Portrait360";
 import { PortraitUploader } from "@/components/PortraitUploader";
 import { Card, PageHeader } from "@/components/ui";
@@ -24,6 +25,9 @@ export default async function ProfilePage() {
           )}
           <PortraitUploader hasPortrait={p.frames > 0} />
         </div>
+      </Card>
+      <Card title="Sign-in password">
+        <PasswordForm />
       </Card>
     </div>
   );
