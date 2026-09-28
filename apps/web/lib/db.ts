@@ -11,9 +11,11 @@ export function getDb(): Db {
   if (!globalForDb.lifelogDb) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL is not set");
-    // DATABASE_URL is the Supabase pooler in session mode (5432): every open connection holds one
-    // of its 15 slots, across all Vercel instances, so keep few and close them when idle.
-    const client = postgres(url, { prepare: false, max: 3, idle_timeout: 10, max_lifetime: 300 });
+    // DATABASE_URL is the Supabase pooler in session mode (5432); the transaction pooler (6543)
+    // stalled the dashboard's parallel queries until statement_timeout. In session mode every open
+    // connection holds one pooler slot across all Vercel instances, so keep two per instance and
+    // close them quickly (a suspended instance can't run its idle timer).
+    const client = postgres(url, { prepare: false, max: 2, idle_timeout: 5, max_lifetime: 60 });
     globalForDb.lifelogSql = client;
     globalForDb.lifelogDb = drizzle(client, { schema });
   }

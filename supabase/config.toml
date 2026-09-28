@@ -440,7 +440,8 @@ enroll_enabled = true
 verify_enabled = true
 
 [remotes.production.db.pooler]
-default_pool_size = 15
+# session mode: one slot per open app connection, across all Vercel instances (max_connections is 60)
+default_pool_size = 30
 max_client_conn = 200
 
 [remotes.production.storage.analytics]
