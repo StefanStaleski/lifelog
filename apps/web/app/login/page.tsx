@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
 
 type State =
@@ -9,9 +9,28 @@ type State =
   | { kind: "sent"; email: string }
   | { kind: "error"; message: string };
 
+const OTHER_BROWSER =
+  "Open the link in the same browser you requested it from, or get a new one here.";
+/** Why /auth/callback sent us back here (`?error=`). */
+const CALLBACK_ERRORS: Record<string, string> = {
+  not_owner: "That account can't open this dashboard.",
+  otp_expired: "That link has expired or was already used. Get a new one.",
+  flow_state_expired: "That link has expired. Get a new one.",
+  flow_state_not_found: OTHER_BROWSER,
+  bad_code_verifier: OTHER_BROWSER,
+  pkce_code_verifier_not_found: OTHER_BROWSER,
+};
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>({ kind: "idle" });
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("error");
+    if (!code) return;
+    const message = CALLBACK_ERRORS[code] ?? "That link didn't work. Get a new one.";
+    setState({ kind: "error", message });
+  }, []);
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -42,8 +61,7 @@ export default function LoginPage() {
           <div className="mt-4 space-y-3">
             <p className="font-medium">Check your email ✉️</p>
             <p className="text-sm text-stone-500 dark:text-stone-400">
-              If {state.email} can sign in, a link is on its way. Open it on any device, it signs
-              you in there.
+              If {state.email} can sign in, a link is on its way. Open it in this browser.
             </p>
             <button
               onClick={() => setState({ kind: "idle" })}
