@@ -59,9 +59,7 @@ export type Slot = {
 export async function getDaySlots(db: Db, date: string): Promise<Slot[]> {
   const dayStart = sql`${date}::date::timestamp AT TIME ZONE ${TZ}`;
   const dayEnd = sql`(${date}::date + 1)::timestamp AT TIME ZONE ${TZ}`;
-  const [row] = (await db.execute(sql`select ${dayStart} as start`)) as unknown as {
-    start: Date;
-  }[];
+  const [row] = (await db.execute<{ start: Date }>(sql`select ${dayStart} as start`)).rows;
   const t0 = new Date(row!.start).getTime();
   const slots: Slot[] = Array.from({ length: 48 }, () => ({
     place: null,
@@ -84,9 +82,11 @@ export async function getDaySlots(db: Db, date: string): Promise<Slot[]> {
     );
   for (const v of vs) mark(v.a.getTime(), (v.b ?? new Date()).getTime(), (s) => (s.place = v.kind));
 
-  const stays = (await db.execute(
-    sql`select arrived_at as a, left_at as b from location_stays where arrived_at < ${dayEnd} and left_at > ${dayStart}`,
-  )) as unknown as { a: Date; b: Date }[];
+  const stays = (
+    await db.execute<{ a: Date; b: Date }>(
+      sql`select arrived_at as a, left_at as b from location_stays where arrived_at < ${dayEnd} and left_at > ${dayStart}`,
+    )
+  ).rows;
   for (const s of stays)
     mark(new Date(s.a).getTime(), new Date(s.b).getTime(), (x) => (x.place ??= "other"));
 
@@ -120,13 +120,13 @@ export async function getDaySlots(db: Db, date: string): Promise<Slot[]> {
 /** Phone minutes per weekday (0 = Mon) × hour over the last `days` days, averaged per week. */
 export async function getPatternOfLife(db: Db, days = 28, now = new Date()) {
   const since = new Date(now.getTime() - days * 86_400_000);
-  const rows = (await db.execute(sql`
+  const { rows } = await db.execute<{ dow: number; hour: number; minutes: number }>(sql`
     select (extract(isodow from occurred_at at time zone ${TZ}) - 1)::int as dow,
            extract(hour from occurred_at at time zone ${TZ})::int as hour,
            sum((payload ->> 'foreground_ms')::bigint)::float8 / 60000 as minutes
     from events
     where type = 'app_usage' and occurred_at >= ${since.toISOString()}::timestamptz
-    group by 1, 2`)) as unknown as { dow: number; hour: number; minutes: number }[];
+    group by 1, 2`);
   const grid = Array.from({ length: 7 }, () => Array<number>(24).fill(0));
   const weeks = days / 7;
   for (const r of rows) grid[r.dow]![r.hour] = r.minutes / weeks;
@@ -136,16 +136,7 @@ export async function getPatternOfLife(db: Db, days = 28, now = new Date()) {
 /** Named places with how often and how long they were visited in the last 30 days. */
 export async function getKnownPlaces(db: Db, now = new Date()) {
   const since = new Date(now.getTime() - 30 * 86_400_000);
-  return (await db.execute(sql`
-    select p.id, p.name, p.kind, p.lat, p.lng, p.radius_m,
-           count(v.arrived_at)::int as visits,
-           coalesce(sum(extract(epoch from (coalesce(v.left_at, now()) - v.arrived_at)) / 60), 0)::float8 as minutes,
-           max(coalesce(v.left_at, now())) as last_seen
-    from places p
-    left join visits v on v.place_id = p.id and v.arrived_at >= ${since.toISOString()}::timestamptz
-    where p.archived_at is null
-    group by p.id
-    order by minutes desc`)) as unknown as {
+  const { rows } = await db.execute<{
     id: string;
     name: string;
     kind: "home" | "work" | "gym" | "other";
@@ -155,7 +146,17 @@ export async function getKnownPlaces(db: Db, now = new Date()) {
     visits: number;
     minutes: number;
     last_seen: Date | null;
-  }[];
+  }>(sql`
+    select p.id, p.name, p.kind, p.lat, p.lng, p.radius_m,
+           count(v.arrived_at)::int as visits,
+           coalesce(sum(extract(epoch from (coalesce(v.left_at, now()) - v.arrived_at)) / 60), 0)::float8 as minutes,
+           max(coalesce(v.left_at, now())) as last_seen
+    from places p
+    left join visits v on v.place_id = p.id and v.arrived_at >= ${since.toISOString()}::timestamptz
+    where p.archived_at is null
+    group by p.id
+    order by minutes desc`);
+  return rows;
 }
 
 export type Anomaly = {

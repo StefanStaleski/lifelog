@@ -93,8 +93,8 @@ export function Portrait360({
         src={url(idx)}
         alt=""
         draggable={false}
-        className="h-full w-full object-cover transition-transform duration-150 ease-out [filter:saturate(0.85)_contrast(1.05)]"
-        style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(1.03)` }}
+        className="h-full w-full object-contain transition-transform duration-150 ease-out [filter:saturate(0.85)_contrast(1.05)]"
+        style={{ transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
       />
       {/* HUD overlay: cyan wash, scanning line, corner brackets, labels */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-accent/5" />

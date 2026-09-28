@@ -145,8 +145,8 @@ describe("sleep estimate", () => {
     const old = unlock("2026-01-01T08:00:00Z");
     await ingestBatch(db(), [old, unlock(new Date().toISOString().replace(/\.\d+Z$/, "Z"))]);
     await db().execute(sql`select public.nightly_rebuild()`);
-    const pruned = await db().execute(sql`select public.prune_events() as n`);
-    expect(Number((pruned as unknown as { n: number }[])[0]!.n)).toBe(1);
+    const pruned = await db().execute<{ n: number }>(sql`select public.prune_events() as n`);
+    expect(Number(pruned.rows[0]!.n)).toBe(1);
     expect(await db().select().from(events).where(eq(events.id, old.id))).toHaveLength(0);
   });
 });

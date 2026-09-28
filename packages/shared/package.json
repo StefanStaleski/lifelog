@@ -14,12 +14,13 @@
   },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.11",
     "vitest": "^5.0.2"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",
-    "postgres": "^3.4.9",
+    "pg": "^8.23.0",
     "zod": "^4.6.5"
   }
 }
