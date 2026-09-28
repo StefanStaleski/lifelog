@@ -3,7 +3,7 @@
 // DEVICE_TOKEN comes from the environment or apps/web/.env.local.
 import { readFileSync } from "node:fs";
 
-const baseUrl = process.argv[2] ?? process.env.BASE_URL ?? "https://lifelog-opal-two.vercel.app";
+const baseUrl = process.argv[2] ?? process.env.BASE_URL ?? "https://stefanslifelog.vercel.app";
 const days = process.argv[3] ?? "7";
 let token = process.env.DEVICE_TOKEN;
 if (!token) {

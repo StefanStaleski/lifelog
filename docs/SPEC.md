@@ -239,7 +239,7 @@ Changes and decisions made while building Phase 1 (the rest of this spec still a
 - **Security.** Besides RLS without policies, all table and function privileges are revoked from `anon`/`authenticated` (checked by pgTAP tests).
 - **Wire contract** in `packages/shared` (zod) with JSON fixtures that both the TypeScript and Kotlin tests run against.
 - **Gate definition.** "No gaps" means no heartbeat silence over 4 h (Doze may delay work overnight; usage data is backfilled) and screen time or unlocks on every finished day. Missing check-ins are reported, not failing. Check with `pnpm gate`.
-- **Deploy.** Vercel project `staleski-dev/lifelog`, https://lifelog-opal-two.vercel.app. Supabase org "Lifelog"; the cloud project waits for a free-tier slot (limit of 2 active projects), then `scripts/setup-supabase.sh` finishes setup.
+- **Deploy.** Vercel project `staleski-dev/lifelog`, https://stefanslifelog.vercel.app. Supabase org "Lifelog"; the cloud project waits for a free-tier slot (limit of 2 active projects), then `scripts/setup-supabase.sh` finishes setup.
 
 ## Phases 2–3 as built
 
