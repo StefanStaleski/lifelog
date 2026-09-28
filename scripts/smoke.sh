@@ -5,7 +5,7 @@
 # duplicates and real "last seen" timestamps are never moved.
 set -euo pipefail
 
-BASE_URL="${1:-${BASE_URL:-https://lifelog-opal-two.vercel.app}}"
+BASE_URL="${1:-${BASE_URL:-https://stefanslifelog.vercel.app}}"
 ENV_FILE="$(dirname "$0")/../apps/web/.env.local"
 if [[ -z "${DEVICE_TOKEN:-}" && -f "$ENV_FILE" ]]; then
   DEVICE_TOKEN="$(grep '^DEVICE_TOKEN=' "$ENV_FILE" | cut -d= -f2-)"

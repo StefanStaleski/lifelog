@@ -422,8 +422,8 @@ enabled = true
 project_id = "itiulabamqhidvpjvgvt"
 
 [remotes.production.auth]
-site_url = "https://lifelog-opal-two.vercel.app"
-additional_redirect_urls = ["https://lifelog-opal-two.vercel.app/auth/callback", "http://localhost:3000/auth/callback"]
+site_url = "https://stefanslifelog.vercel.app"
+additional_redirect_urls = ["https://stefanslifelog.vercel.app/auth/callback", "https://lifelog-opal-two.vercel.app/auth/callback", "http://localhost:3000/auth/callback"]
 enable_signup = false
 
 [remotes.production.auth.email]

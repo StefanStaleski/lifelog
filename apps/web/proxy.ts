@@ -9,6 +9,17 @@ import { devAuthBypass } from "@/lib/owner";
 export async function proxy(request: NextRequest) {
   if (devAuthBypass() || !process.env.NEXT_PUBLIC_SUPABASE_URL) return NextResponse.next();
 
+  // Supabase sends the magic link to the site root when the requested redirect isn't allowed;
+  // hand the code to the callback instead of dropping it on the way to /login.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    url.search = "";
+    url.searchParams.set("code", code);
+    return NextResponse.redirect(url);
+  }
+
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
