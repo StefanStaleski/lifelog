@@ -23,6 +23,8 @@ const CALLBACK_ERRORS: Record<string, string> = {
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"password" | "link">("password");
   const [state, setState] = useState<State>({ kind: "idle" });
 
   useEffect(() => {
@@ -31,6 +33,22 @@ export default function LoginPage() {
     const message = CALLBACK_ERRORS[code] ?? "That link didn't work. Get a new one.";
     setState({ kind: "error", message });
   }, []);
+
+  async function signIn(e: FormEvent) {
+    e.preventDefault();
+    setState({ kind: "sending" });
+    const { error } = await createSupabaseBrowser().auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) {
+      const wrong = /invalid login credentials/i.test(error.message);
+      setState({ kind: "error", message: wrong ? "Wrong email or password." : error.message });
+    } else {
+      // Full load so the server sees the new session cookie.
+      window.location.assign("/");
+    }
+  }
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -71,10 +89,12 @@ export default function LoginPage() {
             </button>
           </div>
         ) : (
-          <form onSubmit={send} className="mt-4 space-y-4">
-            <p className="text-sm text-stone-500 dark:text-stone-400">
-              We&apos;ll email you a sign-in link. No password needed.
-            </p>
+          <form onSubmit={mode === "password" ? signIn : send} className="mt-4 space-y-4">
+            {mode === "link" && (
+              <p className="text-sm text-stone-500 dark:text-stone-400">
+                We&apos;ll email you a sign-in link (at most 2 an hour).
+              </p>
+            )}
             <input
               type="email"
               required
@@ -84,13 +104,45 @@ export default function LoginPage() {
               placeholder="you@example.com"
               className="w-full rounded-2xl border border-stone-300 bg-transparent px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-stone-700"
             />
+            {mode === "password" && (
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full rounded-2xl border border-stone-300 bg-transparent px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 dark:border-stone-700"
+              />
+            )}
             <button
               disabled={state.kind === "sending"}
               className="w-full rounded-xl bg-accent px-4 py-3 font-medium text-stone-950 transition hover:bg-accent/85 disabled:opacity-60"
             >
-              {state.kind === "sending" ? "Sending…" : "Email me a link"}
+              {mode === "password"
+                ? state.kind === "sending"
+                  ? "Signing in…"
+                  : "Sign in"
+                : state.kind === "sending"
+                  ? "Sending…"
+                  : "Email me a link"}
             </button>
             {state.kind === "error" && <p className="text-sm text-attention">{state.message}</p>}
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "password" ? "link" : "password");
+                setState({ kind: "idle" });
+              }}
+              className="text-sm font-medium text-accent"
+            >
+              {mode === "password" ? "No password yet? Email me a link" : "Use my password"}
+            </button>
+            {mode === "link" && (
+              <p className="text-xs text-stone-500">
+                Once you&apos;re in, set a password on the Profile page.
+              </p>
+            )}
           </form>
         )}
       </div>
