@@ -130,6 +130,61 @@ body::after {
   }
 }
 
+/* Page transitions: pages ease in, placeholders shimmer, a line runs under the header while a
+   navigation is pending. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.page-stage > * {
+  animation: page-enter 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes skeleton-sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+.skeleton {
+  background:
+    linear-gradient(100deg, transparent 30%, rgb(63 208 224 / 0.1) 50%, transparent 70%) 0 0 / 200%
+      100%,
+    rgb(255 255 255 / 0.04);
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes nav-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(0.9);
+  }
+}
+.nav-progress {
+  transform-origin: left;
+  animation: nav-progress 2.5s cubic-bezier(0.1, 0.6, 0.2, 1) both;
+}
+@keyframes nav-pending {
+  50% {
+    opacity: 0.4;
+  }
+}
+.nav-pending {
+  animation: nav-pending 0.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-stage > *,
+  .skeleton,
+  .nav-progress,
+  .nav-pending {
+    animation: none;
+  }
+}
+
 /* Leaflet map: darken the tiles to sit in the HUD. */
 .hud-map .leaflet-tile-pane {
   filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6);

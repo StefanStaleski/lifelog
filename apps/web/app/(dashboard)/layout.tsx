@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { BottomNav, TopNav } from "@/components/Nav";
+import Link from "next/link";
+import { BottomNav, NavPending, TopNav } from "@/components/Nav";
 import { getOwner } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -20,12 +21,13 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </span>
           <TopNav />
           <div className="flex items-center gap-1">
-            <a
+            <Link
               href="/profile"
-              className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent"
+              className="relative rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent"
             >
               Profile
-            </a>
+              <NavPending />
+            </Link>
             <form action="/auth/signout" method="post">
               <button className="rounded-md px-3 py-1.5 font-mono text-xs tracking-[0.15em] text-stone-500 uppercase hover:text-accent">
                 Sign out
