@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isOwnerEmail } from "@/lib/owner";
+import { isOwnerEmail, safeNextPath } from "@/lib/owner";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 /**
@@ -25,5 +25,6 @@ export async function GET(req: Request) {
     await supabase.auth.signOut();
     return fail("not_owner");
   }
-  return NextResponse.redirect(new URL("/", url.origin), { status: 303 });
+  const next = safeNextPath(url.searchParams.get("next"));
+  return NextResponse.redirect(new URL(next, url.origin), { status: 303 });
 }

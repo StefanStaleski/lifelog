@@ -40,12 +40,17 @@ export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";
+    // Come back here after signing in (the OAuth consent page needs its authorization_id).
+    const back = request.nextUrl.pathname + request.nextUrl.search;
+    if (back !== "/") url.searchParams.set("next", back);
     return NextResponse.redirect(url);
   }
   return response;
 }
 
 export const config = {
-  // Everything except the API (own auth), sign-in pages and static files.
-  matcher: ["/((?!api/|login|auth/|_next/|favicon.ico|.*\\.(?:png|svg|ico|webmanifest)$).*)"],
+  // Everything except the API (own auth), sign-in pages, OAuth metadata and static files.
+  matcher: [
+    "/((?!api/|login|auth/|\\.well-known/|_next/|favicon.ico|.*\\.(?:png|svg|ico|webmanifest)$).*)",
+  ],
 };

@@ -435,6 +435,14 @@ otp_expiry = 900
 enable_confirmations = true
 max_frequency = "1m0s"
 
+# Claude connector (docs/MCP.md): Supabase Auth is the OAuth 2.1 server for /api/mcp. claude.ai
+# registers itself (dynamic client registration) and the owner approves on /oauth/consent
+# (Site URL + authorization_url_path). Applied with `supabase config push`, not automatically.
+[remotes.production.auth.oauth_server]
+enabled = true
+authorization_url_path = "/oauth/consent"
+allow_dynamic_registration = true
+
 [remotes.production.auth.mfa.totp]
 enroll_enabled = true
 verify_enabled = true

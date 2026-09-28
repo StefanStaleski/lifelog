@@ -14,7 +14,8 @@ apps/android/      Kotlin app: Compose, Room, WorkManager, Hilt
                    notifications/ (listener + hourly counts)
   sync/            CollectRunner + heartbeat, Uploader (batches of 500), WorkManager jobs every 30 min
 apps/web/          Next.js 16 on Vercel: /api/v1 routes, dashboard (app/(dashboard): Today, Trends, Time),
-                   proxy.ts (session refresh), lib/ (metrics registry, ingest, sleep via SQL), vercel.json (cron)
+                   proxy.ts (session refresh), lib/ (metrics registry, ingest, sleep via SQL), vercel.json (cron),
+                   /api/mcp read-only MCP server (lib/mcp: auth, tools/) + /oauth/consent (docs/MCP.md)
 packages/shared/   Wire contract (zod: events.ts, api.ts) + fixtures/, Drizzle schema (src/db)
 supabase/          migrations (incl. process_events SQL), pgTAP tests; later pg_cron + Edge Functions
 scripts/           smoke.sh, setup-supabase.sh, gate.mjs
@@ -37,6 +38,7 @@ pnpm build
 pnpm --filter web dev                 # local dashboard + API on :3000
 pnpm --filter web seed                # ~60 days of fake phone data into the LOCAL db (refuses anything else)
 DASHBOARD_DEV_AUTH_BYPASS=1 pnpm --filter web dev   # dashboard without signing in (local dev only)
+pnpm --filter web mcp:smoke [base-url]              # MCP server check with the SDK client (docs/MCP.md)
 
 # Database (Supabase CLI is a dev dependency: `pnpm exec supabase …`)
 pnpm db:start                         # local Postgres only, on port 55322 (ports are 553xx to avoid other local stacks)

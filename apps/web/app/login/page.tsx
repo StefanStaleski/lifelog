@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useEffect, useState } from "react";
+import { safeNextPath } from "@/lib/owner";
 import { createSupabaseBrowser } from "@/lib/supabase/client";
 
 type State =
@@ -8,6 +9,9 @@ type State =
   | { kind: "sending" }
   | { kind: "sent"; email: string }
   | { kind: "error"; message: string };
+
+/** `?next=` from the proxy (e.g. the OAuth consent page), checked to stay on this site. */
+const nextPath = () => safeNextPath(new URLSearchParams(window.location.search).get("next"));
 
 const OTHER_BROWSER =
   "Open the link in the same browser you requested it from, or get a new one here.";
@@ -46,7 +50,7 @@ export default function LoginPage() {
       setState({ kind: "error", message: wrong ? "Wrong email or password." : error.message });
     } else {
       // Full load so the server sees the new session cookie.
-      window.location.assign("/");
+      window.location.assign(nextPath());
     }
   }
 
@@ -57,7 +61,10 @@ export default function LoginPage() {
       email: email.trim(),
       options: {
         shouldCreateUser: false,
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo:
+          nextPath() === "/"
+            ? `${window.location.origin}/auth/callback`
+            : `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath())}`,
       },
     });
     // Same answer whether or not the address is allowed, so the page doesn't reveal who can sign in.

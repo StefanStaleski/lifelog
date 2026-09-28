@@ -4,3 +4,4 @@ supabase/migrations/
 docs/
 .next/
 dist/
+.claude/
