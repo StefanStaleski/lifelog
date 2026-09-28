@@ -30,7 +30,7 @@ export async function deleteRange(
     const counts: Record<string, number> = {};
     for (const [table, where] of targets) {
       const res = await tx.execute(sql`DELETE FROM ${sql.identifier(table)} WHERE ${where}`);
-      counts[table] = (res as unknown as { count: number }).count ?? 0;
+      counts[table] = res.rowCount ?? 0;
     }
     return counts;
   });
