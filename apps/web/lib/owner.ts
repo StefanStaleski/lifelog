@@ -15,3 +15,12 @@ export function devAuthBypass(): boolean {
     process.env.DASHBOARD_DEV_AUTH_BYPASS === "1"
   );
 }
+
+/**
+ * Where to go after signing in (`?next=`): only a path on this site, so the login page can't be
+ * used to bounce the owner to another origin. Anything else means the dashboard home.
+ */
+export function safeNextPath(next: string | null | undefined): string {
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/";
+  return next;
+}

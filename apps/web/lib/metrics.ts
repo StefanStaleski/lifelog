@@ -45,7 +45,8 @@ export type MetricName = keyof typeof METRICS;
 export const METRIC_NAMES = Object.keys(METRICS) as MetricName[];
 export const isMetricName = (n: string): n is MetricName => n in METRICS;
 
-const COLUMNS = {
+/** The `daily_summary` column behind each metric (query_days and series read through this). */
+export const METRIC_COLUMNS = {
   screen_time_min: dailySummary.screenTimeMin,
   unlocks: dailySummary.unlocks,
   notifications: dailySummary.notifications,
@@ -125,7 +126,7 @@ export async function getSeries(
   to: string,
   bucket: Bucket,
 ) {
-  const col = COLUMNS[name];
+  const col = METRIC_COLUMNS[name];
   if (!["day", "week", "month"].includes(bucket)) throw new Error(`bad bucket ${bucket}`);
   // Inlined (from the allow-list above) so GROUP BY sees the same expression as SELECT.
   const start = sql`date_trunc(${sql.raw(`'${bucket}'`)}, ${dailySummary.date})::date`;
