@@ -1,0 +1,50 @@
+[
+  {
+    "id": 20,
+    "timestamp": "2026-09-28T10:05:03.000000+00:00",
+    "duration": 600,
+    "data": {
+      "url": "https://www.github.com/stefan/private-repo?token=abc#x",
+      "title": "stefan/private-repo",
+      "audible": false,
+      "incognito": false,
+      "tabCount": 4
+    }
+  },
+  {
+    "id": 21,
+    "timestamp": "2026-09-28T10:15:03.000000+00:00",
+    "duration": 300,
+    "data": {
+      "url": "https://user:pass@mail.google.com:443/mail/u/0/#inbox",
+      "title": "Inbox (3) - someone@example.com",
+      "audible": false,
+      "incognito": false,
+      "tabCount": 4
+    }
+  },
+  {
+    "id": 22,
+    "timestamp": "2026-09-28T10:20:03.000000+00:00",
+    "duration": 300,
+    "data": {
+      "url": "https://secret.example.com/private",
+      "title": "Secret",
+      "audible": false,
+      "incognito": true,
+      "tabCount": 4
+    }
+  },
+  {
+    "id": 23,
+    "timestamp": "2026-09-28T10:30:00.000000+00:00",
+    "duration": 300,
+    "data": {
+      "url": "https://news.ycombinator.com/item?id=1",
+      "title": "HN",
+      "audible": false,
+      "incognito": false,
+      "tabCount": 4
+    }
+  }
+]

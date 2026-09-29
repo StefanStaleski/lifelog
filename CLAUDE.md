@@ -16,6 +16,8 @@ apps/android/      Kotlin app: Compose, Room, WorkManager, Hilt
 apps/web/          Next.js 16 on Vercel: /api/v1 routes, dashboard (app/(dashboard): Today, Trends, Time),
                    proxy.ts (session refresh), lib/ (metrics registry, ingest, sleep via SQL), vercel.json (cron),
                    /api/mcp read-only MCP server (lib/mcp: auth, tools/) + /oauth/consent (docs/MCP.md)
+apps/desktop/      Laptop collector (Node 22 CLI): ActivityWatch REST → desktop_usage (30-min windows, app + browser
+                   hostname) + desktop_heartbeat, local queue, systemd user timer; scripts/ installs AW + the timer
 packages/shared/   Wire contract (zod: events.ts, api.ts) + fixtures/, Drizzle schema (src/db)
 supabase/          migrations (incl. process_events SQL), pgTAP tests; later pg_cron + Edge Functions
 scripts/           smoke.sh, setup-supabase.sh, gate.mjs
@@ -39,6 +41,11 @@ pnpm --filter web dev                 # local dashboard + API on :3000
 pnpm --filter web seed                # ~60 days of fake phone data into the LOCAL db (refuses anything else)
 DASHBOARD_DEV_AUTH_BYPASS=1 pnpm --filter web dev   # dashboard without signing in (local dev only)
 pnpm --filter web mcp:smoke [base-url]              # MCP server check with the SDK client (docs/MCP.md)
+
+# Desktop collector (laptop; see apps/desktop/README.md)
+apps/desktop/scripts/install-activitywatch.sh   # ActivityWatch in ~/.local/opt, autostart via aw-qt
+apps/desktop/scripts/install.sh                 # bundle to ~/.local/opt/lifelog-desktop + systemd user timer
+~/.local/bin/lifelog-desktop sync --dry-run     # print the batch it would send; `status` for queue/cursor
 
 # Database (Supabase CLI is a dev dependency: `pnpm exec supabase …`)
 pnpm db:start                         # local Postgres only, on port 55322 (ports are 553xx to avoid other local stacks)

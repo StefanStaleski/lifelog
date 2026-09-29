@@ -1,0 +1,14 @@
+[Unit]
+Description=Lifelog desktop sync (ActivityWatch -> Lifelog ingest API)
+Documentation=file://@PREFIX@/README.md
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=@NODE@ @PREFIX@/lifelog-desktop.mjs sync
+# Exit 2 = the server refused the token/request; events stay queued, retried next run.
+SuccessExitStatus=2
+Nice=10
+TimeoutStartSec=10min
+NoNewPrivileges=yes
+PrivateTmp=yes

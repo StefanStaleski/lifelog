@@ -1,0 +1,26 @@
+[
+  {
+    "id": 10,
+    "timestamp": "2026-09-28T10:00:00.000000+00:00",
+    "duration": 2400,
+    "data": {
+      "status": "not-afk"
+    }
+  },
+  {
+    "id": 11,
+    "timestamp": "2026-09-28T10:40:00.000000+00:00",
+    "duration": 600,
+    "data": {
+      "status": "afk"
+    }
+  },
+  {
+    "id": 12,
+    "timestamp": "2026-09-28T10:50:00.000000+00:00",
+    "duration": 1200,
+    "data": {
+      "status": "not-afk"
+    }
+  }
+]
