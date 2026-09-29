@@ -24,8 +24,8 @@ android {
         applicationId = "io.github.stefanstaleski.lifelog"
         minSdk = 30
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "0.3.1"
 
         buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
         buildConfigField("String", "DEVICE_TOKEN", "\"$deviceToken\"")
