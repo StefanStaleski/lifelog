@@ -3,8 +3,8 @@
  * normalised app name and the bare browser hostname. Titles, URLs, paths and queries are dropped.
  */
 
-const HOSTNAME = /^[a-z0-9-]+(\.[a-z0-9-]+)*$/;
-const IPV6 = /^\[[0-9a-f:.]+\]$/;
+/** Same rule as the shared contract's `host`; IP literals like `[::1]` don't pass. */
+const HOSTNAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/;
 
 /** Bare hostname of an http(s) URL (lowercase, no `www.`, port, path, query or credentials). */
 export function hostnameOf(url: unknown): string | null {
@@ -21,7 +21,7 @@ export function hostnameOf(url: unknown): string | null {
     .replace(/\.$/, "")
     .replace(/^www\./, "");
   if (host.length === 0 || host.length > 253) return null;
-  return HOSTNAME.test(host) || IPV6.test(host) ? host : null;
+  return HOSTNAME.test(host) ? host : null;
 }
 
 /** App / window class → lowercase name (e.g. "Code" → "code", "Google-chrome" → "google-chrome"). */

@@ -9,7 +9,7 @@ describe("hostnameOf", () => {
     ["http://localhost:3000/api/v1/health", "localhost"],
     ["https://EXAMPLE.org./Path", "example.org"],
     ["http://192.168.1.10:8080/admin", "192.168.1.10"],
-    ["https://[::1]:8443/x", "[::1]"],
+    ["https://[::1]:8443/x", null],
     ["https://xn--80ak6aa92e.com/", "xn--80ak6aa92e.com"],
   ])("%s → %s", (url, host) => {
     expect(hostnameOf(url)).toBe(host);

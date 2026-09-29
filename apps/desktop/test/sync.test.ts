@@ -3,7 +3,8 @@ import { gunzipSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import { AwClient, pickBuckets } from "../src/aw";
 import { ConfigSchema, PLACEHOLDER_TOKEN, loadConfig } from "../src/config";
-import { DesktopEventSchema, type DesktopEvent } from "../src/contract";
+import { EventSchema } from "@lifelog/shared";
+import type { DesktopEvent } from "../src/contract";
 import { Queue } from "../src/queue";
 import { runSync, summarise } from "../src/sync";
 import { at, fakeAwFetch, fixture, tempPaths } from "./helpers";
@@ -52,7 +53,7 @@ describe("runSync", () => {
       ...Array(7).fill("desktop_usage"),
       "desktop_heartbeat",
     ]);
-    for (const e of server.received) expect(DesktopEventSchema.safeParse(e).success).toBe(true);
+    for (const e of server.received) expect(EventSchema.safeParse(e).success).toBe(true);
     const hb = server.received.at(-1)!;
     expect(hb.payload).toEqual({
       client_version: "0.1.0",
