@@ -78,9 +78,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-4">
       <div className="w-full max-w-sm hud-panel p-8">
-        <p className="text-4xl" aria-hidden>
-          🌿
-        </p>
+        <img src="/mark.svg" alt="" width={56} height={56} className="rounded-xl" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight">Lifelog</h1>
         {state.kind === "sent" ? (
           <div className="mt-4 space-y-3">
