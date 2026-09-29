@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 18 72 72" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="54" cy="46" r="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f2530"/>
+      <stop offset="0.55" stop-color="#08131a"/>
+      <stop offset="1" stop-color="#03080c"/>
+    </radialGradient>
+    <linearGradient id="sweep" x1="54" y1="54" x2="62" y2="33" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3fd0e0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#3fd0e0" stop-opacity="0.7"/>
+    </linearGradient>
+    <pattern id="grid" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M6 0H0V6" fill="none" stroke="#3fd0e0" stroke-opacity="0.07" stroke-width="0.35"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect x="18" y="18" width="72" height="72" rx="16" fill="url(#bg)"/>
+  <rect x="18" y="18" width="72" height="72" rx="16" fill="url(#grid)"/>
+  <!-- sweep: from 12 o'clock clockwise 60° -->
+  <path d="M54 54 L54 36 A18 18 0 0 1 69.59 45 Z" fill="url(#sweep)"/>
+  <g fill="none" stroke="#3fd0e0" stroke-linecap="round" filter="url(#glow)">
+    <circle cx="54" cy="54" r="18" stroke-width="2.2"/>
+    <circle cx="54" cy="54" r="10" stroke-width="0.9" stroke-opacity="0.45"/>
+    <path d="M54 32.5V38 M54 70V75.5 M32.5 54H38 M70 54H75.5" stroke-width="2.2"/>
+    <path d="M57.68 33.12L57.92 31.74M61.25 34.08L61.73 32.76M64.60 35.64L65.80 33.56M67.63 37.76L68.53 36.69M70.24 40.37L71.31 39.47M72.36 43.40L74.44 42.20M73.92 46.75L75.24 46.27M74.88 50.32L76.26 50.08M74.88 57.68L76.26 57.92M73.92 61.25L75.24 61.73M72.36 64.60L74.44 65.80M70.24 67.63L71.31 68.53M67.63 70.24L68.53 71.31M64.60 72.36L65.80 74.44M61.25 73.92L61.73 75.24M57.68 74.88L57.92 76.26M50.32 74.88L50.08 76.26M46.75 73.92L46.27 75.24M43.40 72.36L42.20 74.44M40.37 70.24L39.47 71.31M37.76 67.63L36.69 68.53M35.64 64.60L33.56 65.80M34.08 61.25L32.76 61.73M33.12 57.68L31.74 57.92M33.12 50.32L31.74 50.08M34.08 46.75L32.76 46.27M35.64 43.40L33.56 42.20M37.76 40.37L36.69 39.47M40.37 37.76L39.47 36.69M43.40 35.64L42.20 33.56M46.75 34.08L46.27 32.76M50.32 33.12L50.08 31.74" stroke-width="0.7" stroke-opacity="0.5"/>
+    <!-- hud-panel brackets: top-left and bottom-right only -->
+    <path d="M30 40V35a5 5 0 0 1 5-5h5 M78 68v5a5 5 0 0 1-5 5h-5" stroke-width="2.4" stroke-opacity="0.8"/>
+  </g>
+  <path d="M54 36 L54 54" stroke="#3fd0e0" stroke-width="0.8" stroke-opacity="0.7"/>
+  <circle cx="54" cy="54" r="3.4" fill="#3fd0e0" filter="url(#glow)"/>
+  <circle cx="62.2" cy="42.6" r="2" fill="#f5b54a" filter="url(#glow)"/>
+</svg>
